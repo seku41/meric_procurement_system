@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vendor Login</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.8) 50%, rgba(0, 0, 0, 0.7) 100%);
+      background-image: 
+        linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.7) 50%, rgba(0, 0, 0, 0.6) 100%),
+        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><linearGradient id="redGlow" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23ff0000;stop-opacity:0.4"/><stop offset="50%" style="stop-color:%23ff3333;stop-opacity:0.6"/><stop offset="100%" style="stop-color:%23cc0000;stop-opacity:0.4"/></linearGradient><linearGradient id="carBody" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23ff0000"/><stop offset="100%" style="stop-color:%23cc0000"/></linearGradient><linearGradient id="ground" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23ff0000;stop-opacity:0.3"/><stop offset="100%" style="stop-color:%23cc0000;stop-opacity:0.2"/></linearGradient></defs><rect width="100%" height="100%" fill="%23000"/><!-- Red Light Strip Background --><rect x="580" y="0" width="40" height="800" fill="%23ff0000" opacity="0.8"/><!-- Ground Reflection --><ellipse cx="600" cy="750" rx="400" ry="50" fill="url(%23ground)" opacity="0.6"/><!-- Car Body --><g transform="translate(600,400)"><!-- Main Car Body --><ellipse cx="0" cy="50" rx="200" ry="80" fill="url(%23carBody)" opacity="0.9"/><!-- Car Hood --><ellipse cx="0" cy="20" rx="150" ry="60" fill="url(%23carBody)" opacity="0.95"/><!-- Car Roof --><ellipse cx="0" cy="-10" rx="100" ry="40" fill="url(%23carBody)" opacity="0.9"/><!-- Wheels --><circle cx="-120" cy="80" r="25" fill="%23000" opacity="0.8"/><circle cx="120" cy="80" r="25" fill="%23000" opacity="0.8"/><!-- Wheel Rims --><circle cx="-120" cy="80" r="15" fill="%23fff" opacity="0.3"/><circle cx="120" cy="80" r="15" fill="%23fff" opacity="0.3"/><!-- Headlights --><circle cx="-80" cy="10" r="8" fill="%23fff" opacity="1"/><circle cx="80" cy="10" r="8" fill="%23fff" opacity="1"/><!-- Headlight Glow --><circle cx="-80" cy="10" r="12" fill="%23fff" opacity="0.3"/><circle cx="80" cy="10" r="12" fill="%23fff" opacity="0.3"/><!-- Car Windows --><ellipse cx="0" cy="-5" rx="80" ry="25" fill="%23000" opacity="0.7"/><!-- Car Grill --><rect x="-40" y="15" width="80" height="10" fill="%23000" opacity="0.6"/></g></svg>');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      position: relative;
+    }
+    
+    /* Add red glow effect */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at center, rgba(255, 0, 0, 0.2) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    .minimal-rect { 
+      max-width: 400px; 
+      margin: 60px auto; 
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(15px);
+      padding: 2em; 
+      border-radius: 12px; 
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 0, 0, 0.2);
+      border: 1px solid rgba(255, 0, 0, 0.2);
+    }
+    .minimal-rect h2 { 
+      font-size: 1.5em; 
+      margin-bottom: 1.5em; 
+      text-align: center; 
+      color: #333;
+      font-weight: 600;
+    }
+    .minimal-rect form { margin-bottom: 1.5em; }
+    .minimal-rect input { 
+      width: 100%; 
+      margin-bottom: 1em; 
+      box-sizing: border-box; 
+      padding: 12px 16px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    .minimal-rect input:focus {
+      outline: none;
+      border-color: #dc3545;
+      box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
+    }
+    .minimal-rect button { 
+      width: 100%; 
+      margin-bottom: 0.7em; 
+      box-sizing: border-box; 
+      background: linear-gradient(135deg, #dc3545, #c82333);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
+    }
+    .minimal-rect button:hover {
+      background: linear-gradient(135deg, #c82333, #bd2130);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+    }
+    .minimal-rect a { 
+      text-align: center; 
+      display: block; 
+      margin-top: 1.5em; 
+      color: #dc3545; 
+      text-decoration: none; 
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+    .minimal-rect a:hover { 
+      color: #c82333;
+      text-decoration: underline; 
+    }
+    /* DEBUG: Add high z-index for any interactive lists (for consistency) */
+    .category-list {
+      z-index: 9999 !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- Professional Header -->
+  <div class="header" style="background: none; color: #fff; padding: 2em 0; text-align: center; margin-bottom: 20px;">
+    <h1 style="margin: 0; font-size: 2.5em; font-weight: bold; letter-spacing: 1px; color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">HOTEL PROCUREMENT</h1>
+    <div style="font-size: 1.2em; margin-top: 0.5em; opacity: 0.95; font-weight: 500; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">Meric - kenya</div>
+    <div style="font-size: 1.1em; margin-top: 0.7em; font-style: italic; letter-spacing: 0.5px; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">Professional vendor Registration System</div>
+  </div>
+
+  <div class="minimal-rect">
+    <h2>Vendor Login</h2>
+    <form id="vendor-login-form">
+      <input type="text" id="login-idnumber" placeholder="Enter your ID Number" required />
+      <button type="submit">Login</button>
+    </form>
+    <div id="login-result" style="margin-top:1em;"></div>
+    <a href="vendors.html">&larr; Back to Vendor Registration</a>
+  </div>
+  <script>
+    async function getVendors() {
+      const response = await fetch('../vendors.php');
+      if (!response.ok) {
+        throw new Error('Failed to fetch vendors');
+      }
+      return await response.json();
+    }
+
+    const loginForm = document.getElementById('vendor-login-form');
+    const loginResult = document.getElementById('login-result');
+    loginForm.onsubmit = async function(e) {
+      e.preventDefault();
+      const idNumber = document.getElementById('login-idnumber').value.trim();
+      try {
+        const vendors = await getVendors();
+        const vendor = vendors.find(v => v.id_number === idNumber);
+        if (!vendor) {
+          loginResult.innerHTML = '<span style="color:red;">No registration found for this ID Number.</span>';
+        } else if (vendor.status !== 'approved') {
+          loginResult.innerHTML = `<span style="color:orange;">Your registration status is: ${vendor.status || 'pending'}. Only approved vendors can login.</span>`;
+        } else {
+          sessionStorage.setItem('vendorIdNumber', idNumber);
+          window.location.href = 'vendor-dashboard.html';
+        }
+      } catch (error) {
+        console.error('Error during login:', error);
+        loginResult.innerHTML = '<span style="color:red;">Error during login. Please try again.</span>';
+      }
+    };
+  </script>
+</body>
+</html> 

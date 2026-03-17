@@ -1,0 +1,42 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Project specific
+/node_modules/
+/vendor/
+.env
+*.log
+*.cache
+
+# Database backups
+*.sql
+*.bak
+
+# Uploaded files (if any)
+/uploads/
+/uploads/*
+
+# Configuration files with sensitive data
+config.php
+.env.local
+.env.development
+
+# Render specific
+render.yaml.bak
+
+# Composer
+/composer.lock
+/composer.phar
+
+# npm
+package-lock.json
+yarn.lock

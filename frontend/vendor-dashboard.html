@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vendor Dashboard - Hotel Procurement System</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { 
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.8) 50%, rgba(0, 0, 0, 0.7) 100%);
+      background-image: 
+        linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.7) 50%, rgba(0, 0, 0, 0.6) 100%),
+        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><linearGradient id="redGlow" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23ff0000;stop-opacity:0.4"/><stop offset="50%" style="stop-color:%23ff3333;stop-opacity:0.6"/><stop offset="100%" style="stop-color:%23cc0000;stop-opacity:0.4"/></linearGradient><linearGradient id="carBody" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23ff0000"/><stop offset="100%" style="stop-color:%23cc0000"/></linearGradient><linearGradient id="ground" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23ff0000;stop-opacity:0.3"/><stop offset="100%" style="stop-color:%23cc0000;stop-opacity:0.2"/></linearGradient></defs><rect width="100%" height="100%" fill="%23000"/><!-- Red Light Strip Background --><rect x="580" y="0" width="40" height="800" fill="%23ff0000" opacity="0.8"/><!-- Ground Reflection --><ellipse cx="600" cy="750" rx="400" ry="50" fill="url(%23ground)" opacity="0.6"/><!-- Car Body --><g transform="translate(600,400)"><!-- Main Car Body --><ellipse cx="0" cy="50" rx="200" ry="80" fill="url(%23carBody)" opacity="0.9"/><!-- Car Hood --><ellipse cx="0" cy="20" rx="150" ry="60" fill="url(%23carBody)" opacity="0.95"/><!-- Car Roof --><ellipse cx="0" cy="-10" rx="100" ry="40" fill="url(%23carBody)" opacity="0.9"/><!-- Wheels --><circle cx="-120" cy="80" r="25" fill="%23000" opacity="0.8"/><circle cx="120" cy="80" r="25" fill="%23000" opacity="0.8"/><!-- Wheel Rims --><circle cx="-120" cy="80" r="15" fill="%23fff" opacity="0.3"/><circle cx="120" cy="80" r="15" fill="%23fff" opacity="0.3"/><!-- Headlights --><circle cx="-80" cy="10" r="8" fill="%23fff" opacity="1"/><circle cx="80" cy="10" r="8" fill="%23fff" opacity="1"/><!-- Headlight Glow --><circle cx="-80" cy="10" r="12" fill="%23fff" opacity="0.3"/><circle cx="80" cy="10" r="12" fill="%23fff" opacity="0.3"/><!-- Car Windows --><ellipse cx="0" cy="-5" rx="80" ry="25" fill="%23000" opacity="0.7"/><!-- Car Grill --><rect x="-40" y="15" width="80" height="10" fill="%23000" opacity="0.6"/></g></svg>');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      font-family: 'Segoe UI', Arial, sans-serif; 
+      margin: 0; 
+      padding: 20px; 
+      min-height: 100vh;
+      position: relative;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at center, rgba(255, 0, 0, 0.2) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .header-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+    }
+
+    .header-section h1 {
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      margin: 0;
+      font-size: 1.8em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 10px;
+    }
+
+    .nav-link {
+      background: linear-gradient(135deg, #dc3545, #c82333);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .nav-link:hover {
+      background: linear-gradient(135deg, #c82333, #bd2130);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+    }
+
+    .nav-link.admin {
+      background: linear-gradient(135deg, #007bff, #0056b3);
+    }
+
+    .dashboard-box { 
+      max-width: 1200px; 
+      margin: 20px auto; 
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      padding: 2em; 
+      border-radius: 12px; 
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 0, 0, 0.1);
+      border: 1px solid rgba(255, 0, 0, 0.15);
+    }
+    
+    .dashboard-box h2 { 
+      margin-top: 0; 
+      color: #2c3e50; 
+      border-bottom: 2px solid #dc3545; 
+      padding-bottom: 10px; 
+    }
+    
+    #total-income-section {
+      margin: 2em 0;
+      padding: 1.5em;
+      background: linear-gradient(135deg, #28a745, #218838);
+      color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+    
+    #total-income-section h3 {
+      margin: 0 0 1em 0;
+      color: white;
+      font-size: 1.4em;
+    }
+    
+    #total-income-display {
+      font-size: 2em;
+      font-weight: bold;
+      text-align: center;
+    }
+    
+    .vendor-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    
+    .info-item {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 6px;
+      border-left: 4px solid #dc3545;
+    }
+    
+    .info-item strong {
+      color: #dc3545;
+      display: block;
+      margin-bottom: 5px;
+    }
+    
+    .edit-btn {
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.2s ease;
+    }
+    
+    .edit-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+    }
+    
+    #edit-vendor-form {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    
+    #edit-vendor-form input,
+    #edit-vendor-form select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    
+    .save-btn {
+      background: linear-gradient(135deg, #28a745, #218838);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    
+    .cancel-btn {
+      background: linear-gradient(135deg, #6c757d, #5a6268);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 1em;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    th {
+      background: #f8f9fa;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 2px solid #dee2e6;
+    }
+    
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    tr:hover {
+      background: #f8f9fa;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .status-pending {
+      background: #ffc107;
+      color: #212529;
+    }
+    
+    .status-approved {
+      background: #28a745;
+      color: white;
+    }
+    
+    .status-completed {
+      background: #28a745;
+      color: white;
+    }
+    
+    .status-processing {
+      background: #17a2b8;
+      color: white;
+    }
+    
+    #message-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      max-width: 400px;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    .message {
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      animation: slideIn 0.3s ease-out;
+      position: relative;
+    }
+    
+    .message.success {
+      background: #28a745;
+      color: white;
+    }
+    
+    .message.error {
+      background: #dc3545;
+      color: white;
+    }
+    
+    .message.info {
+      background: #17a2b8;
+      color: white;
+    }
+    
+    #sample-items-notification {
+      margin: 1em 0;
+      padding: 1em;
+      background: linear-gradient(135deg, #ffc107, #e0a800);
+      color: #212529;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+      border-left: 5px solid #ffc107;
+    }
+  </style>
+</head>
+<body>
+  <div class="header-section">
+    <h1>Vendor Dashboard</h1>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link admin">Admin Login</a>
+      <a href="vendors.html" class="nav-link">Vendor Portal</a>
+      <a href="vendor-login.html" class="nav-link">Logout</a>
+    </div>
+  </div>
+
+  <div class="dashboard-box">
+    <div id="message-container"></div>
+    
+    <div id="vendor-details"></div>
+    
+    <!-- Sample Items Notification for Approved Vendors -->
+    <div id="sample-items-notification" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8em;">
+        <h3 style="margin: 0; color: #212529; font-size: 1.1em;">Sample Items Required</h3>
+        <button onclick="this.parentElement.parentElement.style.display='none'" style="background: none; border: none; font-size: 1.2em; cursor: pointer;">×</button>
+      </div>
+      <div>
+        <p style="margin: 0; font-size: 0.95em;">
+          <strong>Congratulations on your approval!</strong> Please bring sample items to the hotel within <strong>7 days</strong>.
+        </p>
+        <div style="margin-top: 0.8em; font-size: 0.85em;">
+          <strong>📍 Hotel Address: Meric Hotel, Nakuru - Kenya<br></strong>
+          <strong>📞 Contact:+254713139354</strong> 
+        </div>
+      </div>
+    </div>
+    
+    <div id="total-income-section">
+      <h3>💰 Total Income</h3>
+      <div id="total-income-display">
+        <span id="total-income-amount">KSH 0.00</span>
+      </div>
+      <div id="income-details" style="margin-top: 1em; font-size: 0.9em; opacity: 0.9;">
+        <span id="confirmed-orders-count">0 paid orders</span>
+      </div>
+    </div>
+    
+    <div id="edit-vendor-form" style="display: none;">
+      <h3>Edit Vendor Details</h3>
+      <form id="vendor-edit-form">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <div>
+            <label><strong>Contact:</strong></label>
+            <input type="text" id="edit-contact">
+          </div>
+          <div>
+            <label><strong>Items (comma separated):</strong></label>
+            <input type="text" id="edit-items">
+          </div>
+          <div>
+            <label><strong>Prices (comma separated):</strong></label>
+            <input type="text" id="edit-prices">
+          </div>
+          <div>
+            <label><strong>Location:</strong></label>
+            <input type="text" id="edit-location">
+          </div>
+          <div>
+            <label><strong>Delivery Method:</strong></label>
+            <input type="text" id="edit-deliveryMethod">
+          </div>
+          <div>
+            <label><strong>Delivery Date:</strong></label>
+            <input type="date" id="edit-deliveryDate">
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button type="submit" class="save-btn">Save Changes</button>
+          <button type="button" onclick="cancelEdit()" class="cancel-btn">Cancel</button>
+        </div>
+      </form>
+    </div>
+    
+    <div id="vendor-orders"></div>
+  </div>
+
+  <script>
+    async function getVendors() {
+      const response = await fetch('../vendors.php');
+      const text = await response.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        console.error('Failed to parse vendors response as JSON:', text);
+        throw new Error('Failed to load vendors from server.');
+      }
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to load vendors from server.');
+      }
+      return Array.isArray(data) ? data : [];
+    }
+
+    async function updateVendor(id, payload) {
+      const response = await fetch(`../vendors.php?id=${encodeURIComponent(id)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const text = await response.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        console.error('Failed to parse updateVendor response as JSON:', text);
+        throw new Error('Failed to update vendor.');
+      }
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update vendor.');
+      }
+      return data;
+    }
+
+    async function getOrders() {
+      const response = await fetch('../orders.php');
+      const text = await response.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        console.error('Failed to parse orders response as JSON:', text);
+        throw new Error('Failed to load orders from server.');
+      }
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to load orders from server.');
+      }
+      return Array.isArray(data) ? data : [];
+    }
+
+    // Check authentication
+    const vendorIdNumber = sessionStorage.getItem('vendorIdNumber');
+    const vendorId = sessionStorage.getItem('vendorId');
+    
+    if (!vendorIdNumber && !vendorId) {
+      window.location.href = 'vendor-login.html';
+    }
+
+    // Message display
+    window.showMessage = function(message, type = 'info') {
+      const container = document.getElementById('message-container');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${type}`;
+      messageDiv.innerHTML = `${message}<button onclick="this.parentElement.remove()" style="background:none;border:none;color:white;font-size:18px;position:absolute;right:8px;top:50%;transform:translateY(-50%);cursor:pointer;">×</button>`;
+      container.appendChild(messageDiv);
+      setTimeout(() => messageDiv.remove(), 5000);
+    };
+
+    // Show edit form
+    window.showEditForm = function() {
+      document.getElementById('edit-vendor-form').style.display = 'block';
+    };
+
+    // Cancel edit
+    window.cancelEdit = function() {
+      document.getElementById('edit-vendor-form').style.display = 'none';
+    };
+
+    // Load dashboard data
+    async function loadDashboard() {
+      try {
+        const vendors = await getVendors();
+        const vendor = vendors.find(v => v.id_number === vendorIdNumber || v.id == vendorId);
+        
+        if (!vendor) {
+          document.getElementById('vendor-details').innerHTML = '<span style="color:red;">Vendor not found. Please log in again.</span>';
+          return;
+        }
+
+        // Display vendor details
+        let details = '<div class="vendor-info">';
+        details += `<div class="info-item"><strong>Name</strong> ${vendor.name}</div>`;
+        details += `<div class="info-item"><strong>ID Number</strong> ${vendor.id_number}</div>`;
+        details += `<div class="info-item"><strong>Contact</strong> ${vendor.contact_info || 'N/A'}</div>`;
+        details += `<div class="info-item"><strong>Supply Items</strong> ${vendor.supply_items ? (Array.isArray(vendor.supply_items) ? vendor.supply_items.join(', ') : vendor.supply_items) : 'N/A'}</div>`;
+        details += `<div class="info-item"><strong>Location</strong> ${vendor.location || 'N/A'}</div>`;
+        details += `<div class="info-item"><strong>Delivery Method</strong> ${vendor.delivery_method || 'N/A'}</div>`;
+        details += `<div class="info-item"><strong>Payment Method</strong> ${vendor.payment_method || 'N/A'}</div>`;
+        details += `<div class="info-item"><strong>Status</strong> <span class="status-badge status-${vendor.status || 'pending'}">${vendor.status || 'pending'}</span></div>`;
+        details += '</div>';
+        details += '<button onclick="showEditForm()" class="edit-btn">Edit Details</button>';
+        
+        document.getElementById('vendor-details').innerHTML = details;
+
+        // Show sample notification for approved vendors
+        if (vendor.status === 'approved') {
+          document.getElementById('sample-items-notification').style.display = 'block';
+        }
+
+        // Pre-fill edit form
+        document.getElementById('edit-contact').value = vendor.contact_info || '';
+        document.getElementById('edit-items').value = vendor.items || '';
+        document.getElementById('edit-prices').value = vendor.prices || '';
+        document.getElementById('edit-location').value = vendor.location || '';
+        document.getElementById('edit-deliveryMethod').value = vendor.delivery_method || '';
+        document.getElementById('edit-deliveryDate').value = vendor.delivery_date || '';
+
+        // Load orders
+        await loadOrders(vendor);
+        
+      } catch (error) {
+        console.error('Error loading dashboard:', error);
+      }
+    }
+
+    // Load orders
+    async function loadOrders(vendor) {
+      try {
+        const orders = await getOrders();
+        
+        const vendorOrders = orders.filter(o => 
+          o.vendor_id == vendor.id || o.vendor_id_number === vendor.id_number
+        );
+
+        // Calculate total income
+        const totalIncome = vendorOrders
+          .filter(o => o.payment_status === 'paid')
+          .reduce((sum, o) => sum + (parseFloat(o.total_price) || 0), 0);
+        
+        document.getElementById('total-income-amount').textContent = 
+          `KSH ${totalIncome.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+        document.getElementById('confirmed-orders-count').textContent = 
+          `${vendorOrders.filter(o => o.payment_status === 'paid').length} paid orders`;
+
+        if (vendorOrders.length === 0) {
+          document.getElementById('vendor-orders').innerHTML = '<p>No orders found.</p>';
+          return;
+        }
+
+        let orderHtml = '<h3>Orders from Admin</h3><div class="table-container"><table><thead><tr>' +
+          '<th>Order ID</th><th>Item</th><th>Qty</th><th>Unit Price</th><th>Total</th>' +
+          '<th>Delivery Date</th><th>Deadline</th><th>Status</th><th>Payment</th>' +
+          '</tr></thead><tbody>';
+
+        vendorOrders.forEach(o => {
+          const unitPrice = parseFloat(o.unit_price) || 0;
+          const quantity = parseFloat(o.quantity) || 0;
+          const totalPrice = parseFloat(o.total_price) || (unitPrice * quantity);
+          
+          orderHtml += `<tr>
+            <td>#${o.id}</td>
+            <td>${o.product}</td>
+            <td>${quantity}</td>
+            <td>KSH ${unitPrice.toLocaleString()}</td>
+            <td>KSH ${totalPrice.toLocaleString()}</td>
+            <td>${o.delivery_date || 'N/A'}</td>
+            <td>${o.deadline || 'N/A'}</td>
+            <td><span class="status-badge status-${o.status || 'pending'}">${o.status || 'pending'}</span></td>
+            <td><span class="status-badge ${o.payment_status === 'paid' ? 'status-approved' : 'status-pending'}">${o.payment_status || 'pending'}</span></td>
+          </tr>`;
+        });
+
+        orderHtml += '</tbody></table></div>';
+        document.getElementById('vendor-orders').innerHTML = orderHtml;
+
+      } catch (error) {
+        console.error('Error loading orders:', error);
+      }
+    }
+
+    // Handle edit form submit
+    const editForm = document.getElementById('vendor-edit-form');
+    if (editForm) {
+      editForm.onsubmit = async function(e) {
+        e.preventDefault();
+        
+        const vendors = await getVendors();
+        const vendor = vendors.find(v => v.id_number === vendorIdNumber || v.id == vendorId);
+        
+        if (!vendor) return;
+
+        const updatedData = {
+          contact_info: document.getElementById('edit-contact').value,
+          items: document.getElementById('edit-items').value,
+          prices: document.getElementById('edit-prices').value,
+          location: document.getElementById('edit-location').value,
+          delivery_method: document.getElementById('edit-deliveryMethod').value,
+          delivery_date: document.getElementById('edit-deliveryDate').value
+        };
+
+        const result = await updateVendor(vendor.id, updatedData);
+        if (result.success) {
+          showMessage('Details updated successfully!', 'success');
+          document.getElementById('edit-vendor-form').style.display = 'none';
+          loadDashboard();
+        } else {
+          showMessage('Failed to update details.', 'error');
+        }
+      };
+    }
+
+    // Initial load
+    loadDashboard();
+
+    // Auto-refresh orders every 30 seconds
+    setInterval(() => {
+      const vendor = { id: vendorId, id_number: vendorIdNumber };
+      loadOrders(vendor);
+    }, 30000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vendor Portal - Hotel Procurement System</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { 
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.8) 50%, rgba(0, 0, 0, 0.7) 100%);
+      background-image: 
+        linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.7) 50%, rgba(0, 0, 0, 0.6) 100%),
+        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><linearGradient id="redGlow" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23ff0000;stop-opacity:0.4"/><stop offset="50%" style="stop-color:%23ff3333;stop-opacity:0.6"/><stop offset="100%" style="stop-color:%23cc0000;stop-opacity:0.4"/></linearGradient><linearGradient id="carBody" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23ff0000"/><stop offset="100%" style="stop-color:%23cc0000"/></linearGradient><linearGradient id="ground" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23ff0000;stop-opacity:0.3"/><stop offset="100%" style="stop-color:%23cc0000;stop-opacity:0.2"/></linearGradient></defs><rect width="100%" height="100%" fill="%23000"/><!-- Red Light Strip Background --><rect x="580" y="0" width="40" height="800" fill="%23ff0000" opacity="0.8"/><!-- Ground Reflection --><ellipse cx="600" cy="750" rx="400" ry="50" fill="url(%23ground)" opacity="0.6"/><!-- Car Body --><g transform="translate(600,400)"><!-- Main Car Body --><ellipse cx="0" cy="50" rx="200" ry="80" fill="url(%23carBody)" opacity="0.9"/><!-- Car Hood --><ellipse cx="0" cy="20" rx="150" ry="60" fill="url(%23carBody)" opacity="0.95"/><!-- Car Roof --><ellipse cx="0" cy="-10" rx="100" ry="40" fill="url(%23carBody)" opacity="0.9"/><!-- Wheels --><circle cx="-120" cy="80" r="25" fill="%23000" opacity="0.8"/><circle cx="120" cy="80" r="25" fill="%23000" opacity="0.8"/><!-- Wheel Rims --><circle cx="-120" cy="80" r="15" fill="%23fff" opacity="0.3"/><circle cx="120" cy="80" r="15" fill="%23fff" opacity="0.3"/><!-- Headlights --><circle cx="-80" cy="10" r="8" fill="%23fff" opacity="1"/><circle cx="80" cy="10" r="8" fill="%23fff" opacity="1"/><!-- Headlight Glow --><circle cx="-80" cy="10" r="12" fill="%23fff" opacity="0.3"/><circle cx="80" cy="10" r="12" fill="%23fff" opacity="0.3"/><!-- Car Windows --><ellipse cx="0" cy="-5" rx="80" ry="25" fill="%23000" opacity="0.7"/><!-- Car Grill --><rect x="-40" y="15" width="80" height="10" fill="%23000" opacity="0.6"/></g></svg>');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      font-family: 'Segoe UI', Arial, sans-serif; 
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      position: relative;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at center, rgba(255, 0, 0, 0.2) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    .container { 
+      max-width: 800px; 
+      margin: 0 auto; 
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      padding: 2.5em; 
+      border-radius: 12px; 
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 0, 0, 0.1);
+      border: 1px solid rgba(255, 0, 0, 0.15);
+      margin-bottom: 30px;
+    }
+
+    .nav-links {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+    }
+
+    .nav-link {
+      background: linear-gradient(135deg, #dc3545, #c82333);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .nav-link:hover {
+      background: linear-gradient(135deg, #c82333, #bd2130);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+    }
+
+    .nav-link.admin {
+      background: linear-gradient(135deg, #007bff, #0056b3);
+    }
+
+    .main-title { 
+      text-align: center; 
+      color: #2c3e50; 
+      font-size: 2.2em; 
+      font-weight: bold; 
+      margin-bottom: 0.5em; 
+    }
+    
+    .payment-notice { 
+      background: #fff3cd; 
+      border: 1px solid #ffeaa7; 
+      color: #856404; 
+      padding: 1em; 
+      border-radius: 8px; 
+      margin-bottom: 2em; 
+      font-weight: bold; 
+      text-align: center; 
+    }
+    
+    .tabs { 
+      display: flex; 
+      margin-bottom: 2em; 
+    }
+    
+    .tab-btn { 
+      flex: 1; 
+      padding: 0.8em 0; 
+      border: none; 
+      background: #e9ecef; 
+      color: #333; 
+      font-size: 1.1em; 
+      cursor: pointer; 
+      border-radius: 8px 8px 0 0; 
+      margin-right: 2px; 
+      transition: background 0.2s; 
+    }
+    
+    .tab-btn.active { 
+      background: #007bff; 
+      color: #fff; 
+      font-weight: bold; 
+    }
+    
+    .tab-content { 
+      display: none; 
+    }
+    
+    .tab-content.active { 
+      display: block; 
+    }
+    
+    form { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 0.7em; 
+    }
+    
+    input, select, textarea, button { 
+      padding: 0.6em; 
+      border-radius: 5px; 
+      border: 1px solid #d0d0d0; 
+      font-size: 1em; 
+    }
+    
+    textarea {
+      resize: vertical;
+    }
+    
+    button[type="submit"] { 
+      background: linear-gradient(135deg, #dc3545, #c82333);
+      color: #fff; 
+      border: none; 
+      font-weight: bold; 
+      cursor: pointer; 
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
+    }
+    
+    button[type="submit"]:hover { 
+      background: linear-gradient(135deg, #c82333, #bd2130);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+    }
+    
+    .success { 
+      color: #28a745; 
+      margin-top: 0.5em; 
+    }
+    
+    .error { 
+      color: #dc3545; 
+      margin-top: 0.5em; 
+    }
+    
+    .info-list { 
+      margin: 1em 0 0 0; 
+      padding: 0; 
+      list-style: none; 
+    }
+    
+    .info-list li { 
+      margin-bottom: 0.3em; 
+    }
+    
+    .section-title { 
+      margin-bottom: 0.5em; 
+      font-size: 1.2em; 
+      font-weight: bold; 
+      color: #007bff; 
+    }
+    
+    .category-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7em 1.5em;
+      margin-bottom: 1em;
+      max-height: 140px;
+      overflow-y: auto;
+    }
+    
+    .category-item {
+      display: flex;
+      align-items: center;
+      font-size: 1em;
+      margin-right: 1em;
+      margin-bottom: 0.5em;
+    }
+    
+    .supply-dropdown {
+      position: relative;
+      width: 100%;
+      margin-bottom: 1em;
+    }
+    
+    .supply-placeholder {
+      padding: 0.6em;
+      border: 1px solid #d0d0d0;
+      border-radius: 5px;
+      background: #fff;
+      cursor: pointer;
+      min-height: 1.5em;
+      font-size: 1em;
+      color: #888;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .supply-dropdown .category-list {
+      display: none;
+      position: absolute;
+      top: 110%;
+      left: 0;
+      width: 100%;
+      background: #fff;
+      border: 1px solid #d0d0d0;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      z-index: 10;
+      max-height: 180px;
+      overflow-y: auto;
+      padding: 0.7em 0.5em;
+    }
+    
+    .supply-dropdown.open .category-list {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    
+    .supply-dropdown .category-item {
+      width: 48%;
+    }
+    
+    .supply-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3em;
+      align-items: center;
+    }
+    
+    .supply-chip {
+      background: #007bff;
+      color: #fff;
+      border-radius: 12px;
+      padding: 0.2em 0.8em;
+      font-size: 0.95em;
+      margin: 0.1em 0;
+      display: inline-block;
+      white-space: nowrap;
+    }
+    
+    /* Payment method fields styling */
+    #bank-transfer-fields,
+    #mobile-money-fields,
+    #paypal-fields,
+    #card-fields {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #dee2e6;
+      margin-top: 10px;
+      margin-bottom: 15px;
+    }
+    
+    /* Footer */
+    .footer {
+      color: #fff;
+      padding: 1.5em 0;
+      margin-top: 2em;
+      text-align: center;
+    }
+    
+    .footer-content {
+      padding: 0 2em;
+    }
+    
+    .footer-section h4 {
+      margin: 0 0 0.5em 0;
+      font-size: 1.1em;
+      color: #fff;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+    
+    .footer-section p {
+      margin: 0.3em 0;
+      color: #fff;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+    
+    .footer-bottom {
+      margin-top: 1.5em;
+      padding-top: 1em;
+    }
+    
+    .copyright p {
+      margin: 0.2em 0;
+      color: #fff;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+  </style>
+</head>
+<body>
+  <!-- Professional Header -->
+  <div class="header" style="background: none; color: #fff; padding: 2em 0; text-align: center; margin-bottom: 20px;">
+    <h1 style="margin: 0; font-size: 2.5em; font-weight: bold; letter-spacing: 1px; color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">HOTEL PROCUREMENT</h1>
+    <div style="font-size: 1.2em; margin-top: 0.5em; opacity: 0.95; font-weight: 500; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">Meric - kenya</div>
+    <div style="font-size: 1.1em; margin-top: 0.7em; font-style: italic; letter-spacing: 0.5px; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">Professional vendor Registration System</div>
+  </div>
+
+  <div class="container">
+    <div class="nav-links">
+      <a href="index.html" class="nav-link admin">Home</a>
+      <a href="vendor-login.html" class="nav-link">Vendor Login</a>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-register">Register</button>
+    </div>
+
+    <!-- Registration Tab -->
+    <div class="tab-content active" id="content-register">
+      <h1 class="main-title">Vendor Registration</h1>
+      
+      <div class="payment-notice">
+        ⚠️ <strong>IMPORTANT:</strong> Payments are processed after delivery according to our hotel's terms and policy. Please ensure timely delivery to facilitate prompt payment processing.
+      </div>
+
+      <form id="vendor-register-form">
+        <input type="text" id="vendor-name" placeholder="Vendor Name" required />
+        <input type="text" id="vendor-contact" placeholder="Contact Info" required />
+        
+        <label style="font-weight:bold; margin-bottom: 5px; display: block;">Item(s) to Supply (select one or more):</label>
+        <div class="supply-dropdown" id="supply-dropdown">
+          <div class="supply-placeholder" id="supply-placeholder">Select item(s) to supply...</div>
+          <div class="category-items" id="category-list">
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Bedsheets">Bedsheets</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Towels">Towels</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Pillows">Pillows</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Blankets">Blankets</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Mattresses">Mattresses</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Curtains">Curtains</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Tablecloths">Tablecloths</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Soap">Soap</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Shampoo">Shampoo</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Toothpaste">Toothpaste</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Toilet Paper">Toilet Paper</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Cleaning Supplies">Cleaning Supplies</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Disinfectants">Disinfectants</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Laundry Detergent">Laundry Detergent</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Food Supplies">Food Supplies</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Beverages">Beverages</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Fruits & Vegetables">Fruits & Vegetables</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Meat & Poultry">Meat & Poultry</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Seafood">Seafood</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Bakery Items">Bakery Items</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Dairy Products">Dairy Products</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Uniforms">Uniforms</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Kitchenware">Kitchenware</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Cutlery">Cutlery</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Crockery">Crockery</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Glassware">Glassware</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Furniture">Furniture</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Electronics">Electronics</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="TVs">TVs</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Mini Fridges">Mini Fridges</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Air Conditioners">Air Conditioners</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Maintenance Supplies">Maintenance Supplies</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Light Bulbs">Light Bulbs</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Plumbing Supplies">Plumbing Supplies</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Paint">Paint</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Stationery">Stationery</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Flowers & Plants">Flowers & Plants</label>
+            <label class="category-item"><input type="checkbox" name="vendor-supply-item" value="Other">Other</label>
+          </div>
+        </div>
+
+        <textarea id="vendor-items" placeholder="Detailed Items List (e.g., 43-inch Samsung TV, 65-inch LG TV, 32-inch Sony TV, Fresh Tomatoes, Rice, etc.)" required style="height: 80px;"></textarea>
+        <input type="text" id="vendor-idnumber" placeholder="ID Number" required />
+        <textarea id="vendor-prices" placeholder="Prices per item (KSH, comma separated - match order of items above)" required style="height: 60px;"></textarea>
+        <textarea id="vendor-specifications" placeholder="Item Specifications (e.g., Brand: Samsung, Size: 43-inch, Model: QLED, Brand: LG, Size: 65-inch, etc.)" style="height: 80px;"></textarea>
+        <input type="text" id="vendor-size" placeholder="General Size (Optional)" />
+        
+        <select id="vendor-color">
+          <option value="">Select Color (Optional)</option>
+          <option value="Red">Red</option>
+          <option value="Blue">Blue</option>
+          <option value="Green">Green</option>
+          <option value="Yellow">Yellow</option>
+          <option value="Black">Black</option>
+          <option value="White">White</option>
+          <option value="Other">Other</option>
+        </select>
+        
+        <select id="vendor-location" required>
+          <option value="">Select Location</option>
+          <option value="Nairobi">Nairobi</option>
+          <option value="Mombasa">Mombasa</option>
+          <option value="Kisumu">Kisumu</option>
+          <option value="Nakuru">Nakuru</option>
+          <option value="Eldoret">Eldoret</option>
+          <option value="Thika">Thika</option>
+          <option value="Narok">Narok</option>
+          <option value="Kericho">Kericho</option>
+          <option value="Kakamega">Kakamega</option>
+          <option value="Nyeri">Nyeri</option>
+          <option value="Machakos">Machakos</option>
+          <option value="Embu">Embu</option>
+          <option value="Meru">Meru</option>
+          <option value="Garissa">Garissa</option>
+          <option value="Wajir">Wajir</option>
+          <option value="Mandera">Mandera</option>
+          <option value="Marsabit">Marsabit</option>
+          <option value="Isiolo">Isiolo</option>
+          <option value="Lamu">Lamu</option>
+          <option value="Tana River">Tana River</option>
+          <option value="Kilifi">Kilifi</option>
+          <option value="Kwale">Kwale</option>
+          <option value="Taita Taveta">Taita Taveta</option>
+          <option value="Kajiado">Kajiado</option>
+          <option value="Kiambu">Kiambu</option>
+          <option value="Murang'a">Murang'a</option>
+          <option value="Kirinyaga">Kirinyaga</option>
+          <option value="Nyandarua">Nyandarua</option>
+          <option value="Laikipia">Laikipia</option>
+          <option value="Nandi">Nandi</option>
+          <option value="Baringo">Baringo</option>
+          <option value="Elgeyo Marakwet">Elgeyo Marakwet</option>
+          <option value="West Pokot">West Pokot</option>
+          <option value="Samburu">Samburu</option>
+          <option value="Trans Nzoia">Trans Nzoia</option>
+          <option value="Uasin Gishu">Uasin Gishu</option>
+          <option value="Bungoma">Bungoma</option>
+          <option value="Busia">Busia</option>
+          <option value="Siaya">Siaya</option>
+          <option value="Homa Bay">Homa Bay</option>
+          <option value="Migori">Migori</option>
+          <option value="Kisii">Kisii</option>
+          <option value="Nyamira">Nyamira</option>
+          <option value="Vihiga">Vihiga</option>
+          <option value="Other">Other</option>
+        </select>
+        
+        <select id="vendor-delivery-method" required>
+          <option value="">Select Delivery Method</option>
+          <option value="Courier">Courier</option>
+          <option value="Pickup">Pickup</option>
+          <option value="Postal">Postal</option>
+          <option value="In-person">In-person</option>
+          <option value="Express Delivery">Express Delivery</option>
+          <option value="Same Day Delivery">Same Day Delivery</option>
+          <option value="Next Day Delivery">Next Day Delivery</option>
+          <option value="Scheduled Delivery">Scheduled Delivery</option>
+          <option value="Door to Door">Door to Door</option>
+          <option value="Warehouse Pickup">Warehouse Pickup</option>
+          <option value="Store Pickup">Store Pickup</option>
+          <option value="Office Delivery">Office Delivery</option>
+          <option value="Home Delivery">Home Delivery</option>
+          <option value="Bulk Delivery">Bulk Delivery</option>
+          <option value="Refrigerated Transport">Refrigerated Transport</option>
+          <option value="Heavy Equipment Transport">Heavy Equipment Transport</option>
+          <option value="Air Freight">Air Freight</option>
+          <option value="Rail Transport">Rail Transport</option>
+          <option value="Bike Delivery">Bike Delivery</option>
+          <option value="Motorcycle Delivery">Motorcycle Delivery</option>
+          <option value="Van Delivery">Van Delivery</option>
+          <option value="Truck Delivery">Truck Delivery</option>
+          <option value="Container Delivery">Container Delivery</option>
+          <option value="Other">Other</option>
+        </select>
+        
+        <input type="date" id="vendor-delivery-date" placeholder="Delivery Date" required />
+        
+        <select id="payment-selection" required>
+          <option value="">Select Payment Method</option>
+          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="Mobile Money">Mobile Money</option>
+          <option value="PayPal">PayPal</option>
+          <option value="Card">Card</option>
+          <option value="Other">Other</option>
+        </select>
+        
+        <!-- Bank Transfer Fields -->
+        <div id="bank-transfer-fields" style="display: none;">
+          <input type="text" id="bank-full-name" placeholder="Full Name" />
+          <input type="text" id="bank-name" placeholder="Bank Name" />
+          <input type="text" id="bank-account-number" placeholder="Account Number" />
+        </div>
+        
+        <!-- Mobile Money Fields -->
+        <div id="mobile-money-fields" style="display: none;">
+          <input type="text" id="mpesa-name" placeholder="MPESA Name" />
+          <input type="text" id="mpesa-phone" placeholder="Phone Number" />
+        </div>
+        
+        <!-- PayPal Fields -->
+        <div id="paypal-fields" style="display: none;">
+          <input type="email" id="paypal-email" placeholder="PayPal Email" />
+        </div>
+        
+        <!-- Card Fields -->
+        <div id="card-fields" style="display: none;">
+          <input type="text" id="card-full-name" placeholder="Full Name" />
+          <input type="text" id="card-bank-account" placeholder="Bank Account" />
+          <input type="text" id="card-number" placeholder="Card Number" />
+        </div>
+        
+        <button type="submit">Register</button>
+      </form>
+      
+      <div id="register-success" class="success" style="display:none;"></div>
+      <div id="register-error" class="error" style="display:none;"></div>
+    </div>
+
+    <!-- Status Tab -->
+    <div class="tab-content" id="content-status">
+      <div class="section-title">Check Registration Status</div>
+      <form id="status-form">
+        <input type="text" id="status-idnumber" placeholder="Enter your ID Number" required />
+        <button type="submit">Check Status</button>
+      </form>
+      <div id="status-result"></div>
+    </div>
+
+    <!-- Login Tab -->
+    <div class="tab-content" id="content-login">
+      <div class="section-title">Vendor Login (Approved Vendors Only)</div>
+      <form id="vendor-login-form">
+        <input type="text" id="login-idnumber" placeholder="Enter your ID Number" required />
+        <button type="submit">Login</button>
+      </form>
+      <div id="login-result"></div>
+    </div>
+  </div>
+
+  <!-- Professional Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>Contact Information</h4>
+        <div class="contact-details">
+          <p><strong>📞 Phone:</strong> +2547131393654</p>
+          <a href="mailto:sekumosekama@gmail.com?subject=Website%20Inquiry&body=Hi%2C%20I%20found%20your%20site..."><strong>Email Us:</strong> sekumosekama@gmail.com</a>
+  
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <div class="copyright">
+        <p>&copy; 2026 Meric Hotel. All rights reserved.</p>
+        <p>Professional Hotel Procurement Management System | Designed for Excellence</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    async function getVendors() {
+      const response = await fetch('../vendors.php');
+      if (!response.ok) {
+        throw new Error('Failed to fetch vendors');
+      }
+      return await response.json();
+    }
+
+    async function addVendor(vendorData) {
+      const response = await fetch('../vendors.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(vendorData)
+      });
+
+      const text = await response.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        console.error('Server returned non-JSON response for vendor registration:', text);
+        throw new Error('Server returned invalid response. Please contact the administrator.');
+      }
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to register vendor');
+      }
+      return data;
+    }
+
+    // Tab navigation
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabBtns.forEach((btn, idx) => {
+      btn.onclick = () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        tabContents[idx].classList.add('active');
+      };
+    });
+
+    // Payment method change handler
+    document.getElementById('payment-selection').addEventListener('change', function() {
+      const paymentMethod = this.value;
+      
+      document.getElementById('bank-transfer-fields').style.display = 'none';
+      document.getElementById('mobile-money-fields').style.display = 'none';
+      document.getElementById('paypal-fields').style.display = 'none';
+      document.getElementById('card-fields').style.display = 'none';
+      
+      if (paymentMethod === 'Bank Transfer') {
+        document.getElementById('bank-transfer-fields').style.display = 'block';
+      } else if (paymentMethod === 'Mobile Money') {
+        document.getElementById('mobile-money-fields').style.display = 'block';
+      } else if (paymentMethod === 'PayPal') {
+        document.getElementById('paypal-fields').style.display = 'block';
+      } else if (paymentMethod === 'Card') {
+        document.getElementById('card-fields').style.display = 'block';
+      }
+    });
+
+    // Registration form
+    const regForm = document.getElementById('vendor-register-form');
+    const regSuccess = document.getElementById('register-success');
+    const regError = document.getElementById('register-error');
+
+    regForm.onsubmit = async function(e) {
+      e.preventDefault();
+      
+      const name = document.getElementById('vendor-name').value.trim();
+      const contact = document.getElementById('vendor-contact').value.trim();
+      
+      const supplyCheckboxes = document.querySelectorAll('input[name="vendor-supply-item"]:checked');
+      const supplyItem = Array.from(supplyCheckboxes).map(cb => cb.value).join(', ');
+      
+      const items = document.getElementById('vendor-items').value.trim();
+      const idNumber = document.getElementById('vendor-idnumber').value.trim();
+      const prices = document.getElementById('vendor-prices').value.trim();
+      const specifications = document.getElementById('vendor-specifications')?.value.trim() || '';
+      const size = document.getElementById('vendor-size').value.trim();
+      const color = document.getElementById('vendor-color').value;
+      const location = document.getElementById('vendor-location').value;
+      const deliveryMethod = document.getElementById('vendor-delivery-method').value;
+      const deliveryDate = document.getElementById('vendor-delivery-date').value;
+      const paymentMethod = document.getElementById('payment-selection').value;
+      
+      // Collect payment details
+      let paymentDetails = {};
+      if (paymentMethod === 'Bank Transfer') {
+        paymentDetails = {
+          bankFullName: document.getElementById('bank-full-name').value.trim(),
+          bankName: document.getElementById('bank-name').value.trim(),
+          bankAccountNumber: document.getElementById('bank-account-number').value.trim()
+        };
+      } else if (paymentMethod === 'Mobile Money') {
+        paymentDetails = {
+          mpesaName: document.getElementById('mpesa-name').value.trim(),
+          mpesaPhone: document.getElementById('mpesa-phone').value.trim()
+        };
+      } else if (paymentMethod === 'PayPal') {
+        paymentDetails = {
+          paypalEmail: document.getElementById('paypal-email').value.trim()
+        };
+      } else if (paymentMethod === 'Card') {
+        paymentDetails = {
+          cardFullName: document.getElementById('card-full-name').value.trim(),
+          cardBankAccount: document.getElementById('card-bank-account').value.trim(),
+          cardNumber: document.getElementById('card-number').value.trim()
+        };
+      }
+      
+      try {
+        // Check for duplicate ID
+        const vendors = await getVendors();
+        if (vendors.some(v => v.id_number === idNumber)) {
+          regError.innerText = 'This ID Number is already registered.';
+          regError.style.display = 'block';
+          regSuccess.style.display = 'none';
+          return;
+        }
+
+        const vendorData = {
+          name, contact_info: contact, id_number: idNumber,
+          items, prices, specifications, size, color, location,
+          delivery_method: deliveryMethod, delivery_date: deliveryDate,
+          payment_method: paymentMethod, payment_details: paymentDetails,
+          supply_items: supplyItem.split(', ').filter(item => item.trim() !== '')
+        };
+        
+        const result = await addVendor(vendorData);
+        
+        if (result && result.success) {
+          regForm.reset();
+          regSuccess.innerText = 'Registration successful! Await admin approval.';
+          regSuccess.style.display = 'block';
+          regError.style.display = 'none';
+        } else {
+          regError.innerText = `Registration failed: ${result.error || 'Unknown error'}`;
+          regError.style.display = 'block';
+          regSuccess.style.display = 'none';
+        }
+      } catch (error) {
+        regError.innerText = `Registration failed: ${error.message}`;
+        regError.style.display = 'block';
+        regSuccess.style.display = 'none';
+      }
+    };
+
+    // Status check
+    const statusForm = document.getElementById('status-form');
+    const statusResult = document.getElementById('status-result');
+
+    statusForm.onsubmit = async function(e) {
+      e.preventDefault();
+      const idNumber = document.getElementById('status-idnumber').value.trim();
+      
+      try {
+        const vendors = await getVendors();
+        const vendor = vendors.find(v => v.id_number === idNumber);
+        
+        if (!vendor) {
+          statusResult.innerHTML = '<span class="error">No registration found for this ID Number.</span>';
+        } else {
+          const color = vendor.status === 'approved' ? 'green' : (vendor.status === 'declined' ? 'red' : 'orange');
+          statusResult.innerHTML = `
+            <ul class='info-list'>
+              <li><strong>Status:</strong> <span style='color:${color};text-transform:capitalize;'>${vendor.status || 'pending'}</span></li>
+              <li><strong>Name:</strong> ${vendor.name}</li>
+              <li><strong>ID Number:</strong> ${vendor.id_number}</li>
+              <li><strong>Supply Items:</strong> ${vendor.supply_items ? (Array.isArray(vendor.supply_items) ? vendor.supply_items.join(', ') : vendor.supply_items) : 'Not specified'}</li>
+              <li><strong>Location:</strong> ${vendor.location}</li>
+              <li><strong>Delivery Method:</strong> ${vendor.delivery_method}</li>
+              <li><strong>Payment Method:</strong> ${vendor.payment_method}</li>
+            </ul>
+          `;
+        }
+      } catch (error) {
+        statusResult.innerHTML = `<span class="error">Error checking status: ${error.message}</span>`;
+      }
+    };
+
+    // Vendor login
+    const loginForm = document.getElementById('vendor-login-form');
+    const loginResult = document.getElementById('login-result');
+
+    loginForm.onsubmit = async function(e) {
+      e.preventDefault();
+      const idNumber = document.getElementById('login-idnumber').value.trim();
+      
+      try {
+        const vendors = await getVendors();
+        const vendor = vendors.find(v => v.id_number === idNumber);
+        
+        if (!vendor) {
+          loginResult.innerHTML = '<span class="error">No registration found for this ID Number.</span>';
+        } else if (vendor.status !== 'approved') {
+          loginResult.innerHTML = `<span class="error">Your registration status is: ${vendor.status || 'pending'}. Only approved vendors can login.</span>`;
+        } else {
+          sessionStorage.setItem('vendorIdNumber', idNumber);
+          sessionStorage.setItem('vendorId', vendor.id);
+          window.location.href = 'vendor-dashboard.html';
+        }
+      } catch (error) {
+        loginResult.innerHTML = '<span class="error">Error during login. Please try again.</span>';
+      }
+    };
+
+    // Supply dropdown logic
+    const supplyDropdown = document.getElementById('supply-dropdown');
+    const supplyPlaceholder = document.getElementById('supply-placeholder');
+    const categoryList = document.getElementById('category-list');
+
+    function updateSupplyPlaceholder() {
+      const checked = categoryList.querySelectorAll('input:checked');
+      if (checked.length === 0) {
+        supplyPlaceholder.textContent = 'Select item(s) to supply...';
+      } else {
+        supplyPlaceholder.innerHTML = '<div class="supply-chips">' +
+          Array.from(checked).map(cb => `<span class='supply-chip'>${cb.value}</span>`).join('') +
+          '</div>';
+      }
+    }
+
+    supplyPlaceholder.addEventListener('click', function(e) {
+      e.stopPropagation();
+      supplyDropdown.classList.toggle('open');
+    });
+
+    categoryList.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (e.target.type === 'checkbox') {
+        setTimeout(updateSupplyPlaceholder, 10);
+      }
+    });
+
+    categoryList.addEventListener('change', function(e) {
+      if (e.target.type === 'checkbox') {
+        updateSupplyPlaceholder();
+      }
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!supplyDropdown.contains(e.target)) {
+        supplyDropdown.classList.remove('open');
+      }
+    });
+
+    updateSupplyPlaceholder();
+  </script>
+</body>
+</html>
