@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vendor Login</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="../css/style.css">
   <style>
     body {
       background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.8) 50%, rgba(0, 0, 0, 0.7) 100%);
@@ -125,7 +125,7 @@
   </div>
   <script>
     async function getVendors() {
-      const response = await fetch('../vendors.php');
+      const response = await fetch('../backend/vendors.php');
       if (!response.ok) {
         throw new Error('Failed to fetch vendors');
       }

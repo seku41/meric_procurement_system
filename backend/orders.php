@@ -6,7 +6,19 @@ ini_set('display_errors', 1);
 header('Content-Type: application/json');
 require_once 'db.php';
 
+function ensureOrderInventoryTracking(PDO $pdo) {
+    $stmt = $pdo->query("SHOW COLUMNS FROM `orders` LIKE 'inventory_recorded'");
+    if ($stmt->rowCount() === 0) {
+        $pdo->exec("
+            ALTER TABLE `orders`
+            ADD COLUMN `inventory_recorded` TINYINT(1) NOT NULL DEFAULT 0
+            AFTER `payment_status`
+        ");
+    }
+}
+
 try {
+ensureOrderInventoryTracking($pdo);
 $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
@@ -89,7 +101,7 @@ switch ($method) {
                 'vendor_id', 'user_id', 'product', 'quantity', 'unit_price', 
                 'total_price', 'specifications', 'size', 'color', 'payment_method', 
                 'payment_details', 'vendor_id_number', 'location', 'delivery_method', 
-                'delivery_date', 'deadline', 'status', 'payment_status'
+                'delivery_date', 'deadline', 'status', 'payment_status', 'inventory_recorded'
             ];
             
             foreach ($possibleFields as $field) {

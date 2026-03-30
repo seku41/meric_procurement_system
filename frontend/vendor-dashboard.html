@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vendor Dashboard - Hotel Procurement System</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="../css/style.css">
   <style>
     body { 
       background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.8) 50%, rgba(0, 0, 0, 0.7) 100%);
@@ -163,7 +163,8 @@
     }
     
     #edit-vendor-form input,
-    #edit-vendor-form select {
+    #edit-vendor-form select,
+    #edit-vendor-form textarea {
       width: 100%;
       padding: 8px;
       border: 1px solid #ddd;
@@ -375,6 +376,21 @@
             <label><strong>Delivery Date:</strong></label>
             <input type="date" id="edit-deliveryDate">
           </div>
+          <div>
+            <label><strong>Payment Method:</strong></label>
+            <select id="edit-paymentMethod">
+              <option value="">Select payment method</option>
+              <option value="Bank Transfer">Bank Transfer</option>
+              <option value="Mobile Money">Mobile Money</option>
+              <option value="PayPal">PayPal</option>
+              <option value="Card">Card</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label><strong>Payment Details:</strong></label>
+            <textarea id="edit-paymentDetails" rows="4" placeholder="Account or wallet details"></textarea>
+          </div>
         </div>
         <div style="display: flex; gap: 10px; margin-top: 20px;">
           <button type="submit" class="save-btn">Save Changes</button>
@@ -388,7 +404,7 @@
 
   <script>
     async function getVendors() {
-      const response = await fetch('../vendors.php');
+      const response = await fetch('../backend/vendors.php');
       const text = await response.text();
       let data;
       try {
@@ -404,7 +420,7 @@
     }
 
     async function updateVendor(id, payload) {
-      const response = await fetch(`../vendors.php?id=${encodeURIComponent(id)}`, {
+      const response = await fetch(`../backend/vendors.php?id=${encodeURIComponent(id)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -424,7 +440,7 @@
     }
 
     async function getOrders() {
-      const response = await fetch('../orders.php');
+      const response = await fetch('../backend/orders.php');
       const text = await response.text();
       let data;
       try {
@@ -467,6 +483,72 @@
       document.getElementById('edit-vendor-form').style.display = 'none';
     };
 
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function formatPaymentDetails(paymentDetails) {
+      if (!paymentDetails) return 'N/A';
+      if (typeof paymentDetails === 'string') return escapeHtml(paymentDetails);
+
+      const labels = {
+        bankFullName: 'Full Name',
+        bankName: 'Bank Name',
+        bankAccountNumber: 'Account Number',
+        mpesaName: 'Mobile Money Name',
+        mpesaPhone: 'Mobile Money Phone',
+        paypalEmail: 'PayPal Email',
+        cardFullName: 'Card Name',
+        cardBankAccount: 'Bank Account',
+        cardNumber: 'Card Number'
+      };
+
+      const lines = Object.entries(paymentDetails)
+        .filter(([, value]) => String(value || '').trim() !== '')
+        .map(([key, value]) => `${escapeHtml(labels[key] || key)}: ${escapeHtml(value)}`);
+
+      return lines.length ? lines.join('<br>') : 'N/A';
+    }
+
+    function serializePaymentDetailsForEdit(paymentDetails) {
+      if (!paymentDetails) return '';
+      if (typeof paymentDetails === 'string') return paymentDetails;
+
+      return Object.entries(paymentDetails)
+        .filter(([, value]) => String(value || '').trim() !== '')
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('\n');
+    }
+
+    function parsePaymentDetailsFromEdit(value) {
+      const raw = String(value || '').trim();
+      if (!raw) return null;
+
+      const lines = raw.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+      const parsed = {};
+
+      lines.forEach(line => {
+        const separatorIndex = line.indexOf(':');
+        if (separatorIndex === -1) {
+          parsed.details = parsed.details ? `${parsed.details}; ${line}` : line;
+          return;
+        }
+
+        const key = line.slice(0, separatorIndex).trim();
+        const fieldValue = line.slice(separatorIndex + 1).trim();
+        if (key) {
+          parsed[key] = fieldValue;
+        }
+      });
+
+      return Object.keys(parsed).length ? parsed : raw;
+    }
+
     // Load dashboard data
     async function loadDashboard() {
       try {
@@ -487,6 +569,7 @@
         details += `<div class="info-item"><strong>Location</strong> ${vendor.location || 'N/A'}</div>`;
         details += `<div class="info-item"><strong>Delivery Method</strong> ${vendor.delivery_method || 'N/A'}</div>`;
         details += `<div class="info-item"><strong>Payment Method</strong> ${vendor.payment_method || 'N/A'}</div>`;
+        details += `<div class="info-item"><strong>Payment Details</strong> ${formatPaymentDetails(vendor.payment_details)}</div>`;
         details += `<div class="info-item"><strong>Status</strong> <span class="status-badge status-${vendor.status || 'pending'}">${vendor.status || 'pending'}</span></div>`;
         details += '</div>';
         details += '<button onclick="showEditForm()" class="edit-btn">Edit Details</button>';
@@ -505,6 +588,8 @@
         document.getElementById('edit-location').value = vendor.location || '';
         document.getElementById('edit-deliveryMethod').value = vendor.delivery_method || '';
         document.getElementById('edit-deliveryDate').value = vendor.delivery_date || '';
+        document.getElementById('edit-paymentMethod').value = vendor.payment_method || '';
+        document.getElementById('edit-paymentDetails').value = serializePaymentDetailsForEdit(vendor.payment_details);
 
         // Load orders
         await loadOrders(vendor);
@@ -586,7 +671,9 @@
           prices: document.getElementById('edit-prices').value,
           location: document.getElementById('edit-location').value,
           delivery_method: document.getElementById('edit-deliveryMethod').value,
-          delivery_date: document.getElementById('edit-deliveryDate').value
+          delivery_date: document.getElementById('edit-deliveryDate').value,
+          payment_method: document.getElementById('edit-paymentMethod').value,
+          payment_details: parsePaymentDetailsFromEdit(document.getElementById('edit-paymentDetails').value)
         };
 
         const result = await updateVendor(vendor.id, updatedData);

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard - Hotel Procurement System</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="../css/style.css">
   <style>
     body {
       background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.8) 50%, rgba(0, 0, 0, 0.7) 100%);
@@ -245,6 +245,138 @@
     .status-badge.status-processing { background: #17a2b8; color: white; }
     .status-badge.status-completed { background: #28a745; color: white; }
     .status-badge.status-cancelled { background: #dc3545; color: white; }
+
+    .assistant-panel {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(248, 249, 250, 0.94));
+      border: 1px solid rgba(220, 53, 69, 0.12);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+      margin-bottom: 20px;
+    }
+
+    .assistant-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+      margin-top: 16px;
+    }
+
+    .assistant-card {
+      background: white;
+      border: 1px solid #e9ecef;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .assistant-card h4 {
+      margin: 0 0 10px;
+      color: #212529;
+    }
+
+    .assistant-metric {
+      font-size: 1.8em;
+      font-weight: 700;
+      color: #dc3545;
+      margin-bottom: 6px;
+    }
+
+    .assistant-subtle {
+      color: #6c757d;
+      font-size: 0.95em;
+    }
+
+    .assistant-vendor-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .assistant-vendor {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      background: white;
+      border-left: 4px solid #dc3545;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    }
+
+    .assistant-vendor strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .assistant-empty {
+      text-align: center;
+      padding: 24px;
+      color: #6c757d;
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px dashed #ced4da;
+      border-radius: 10px;
+      margin-top: 16px;
+    }
+
+    .report-section {
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 18px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+    }
+
+    .report-section h3 {
+      margin-top: 0;
+      margin-bottom: 14px;
+      color: #212529;
+    }
+
+    .report-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .report-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .report-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #eceff3;
+    }
+
+    .report-list li:last-child {
+      border-bottom: none;
+    }
+
+    .report-table-wrap {
+      overflow-x: auto;
+    }
+
+    .report-note {
+      color: #6c757d;
+      font-size: 0.95em;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .assistant-vendor {
+        flex-direction: column;
+      }
+
+      .report-list li {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 <body>
@@ -264,6 +396,7 @@
       <div class="section-tabs">
         <button class="tab-btn active" onclick="showSection('admin-vendors')">Vendors</button>
         <button class="tab-btn" onclick="showSection('orders')">Orders</button>
+        <button class="tab-btn" onclick="showSection('assistant')">Assistant</button>
         <button class="tab-btn" onclick="showSection('reports')">Reports</button>
         <button class="tab-btn" onclick="showSection('inventory')">Inventory</button>
       </div>
@@ -332,6 +465,32 @@
           <button type="submit" class="nav-btn" style="margin-top:10px;">Create Order</button>
         </form>
         <div id="order-result" style="margin-top:15px;"></div>
+      </div>
+
+      <!-- Procurement Assistant Section -->
+      <div id="assistant-section" class="section">
+        <h2>Smart Procurement Assistant</h2>
+        <p style="color:#666; margin-bottom:15px;">Check stock, compare approved vendors, and prepare an order suggestion in one step.</p>
+
+        <div class="assistant-panel">
+          <form id="assistant-form" style="max-width:760px;">
+            <div style="display:grid; grid-template-columns:2fr 1fr; gap:15px; margin-bottom:15px;">
+              <div>
+                <label>What item do you need?</label>
+                <input id="assistant-item" type="text" placeholder="e.g. Rice, Bed sheets, Towels" required style="width:100%; padding:10px; border-radius:6px; border:1px solid #ddd;">
+              </div>
+              <div>
+                <label>Required Quantity</label>
+                <input id="assistant-qty" type="number" min="1" value="1" required style="width:100%; padding:10px; border-radius:6px; border:1px solid #ddd;">
+              </div>
+            </div>
+            <button type="submit" class="nav-btn">Analyze Need</button>
+          </form>
+
+          <div id="assistant-results" class="assistant-empty">
+            Enter an item and quantity to get a stock check and vendor recommendation.
+          </div>
+        </div>
       </div>
 
       <!-- Reports Section -->
@@ -453,8 +612,10 @@
   </div>
 
   <script>
+    let pendingOrderSuggestion = null;
+
     async function getVendors() {
-      const response = await fetch('../vendors.php');
+      const response = await fetch('../backend/vendors.php');
       const text = await response.text();
       let data;
       try {
@@ -470,7 +631,7 @@
     }
 
     async function updateVendor(id, payload) {
-      const response = await fetch(`../vendors.php?id=${encodeURIComponent(id)}`, {
+      const response = await fetch(`../backend/vendors.php?id=${encodeURIComponent(id)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -490,7 +651,7 @@
     }
 
     async function getOrders() {
-      const response = await fetch('../orders.php');
+      const response = await fetch('../backend/orders.php');
       const text = await response.text();
       let data;
       try {
@@ -506,7 +667,7 @@
     }
 
     async function addOrder(orderData) {
-      const response = await fetch('../orders.php', {
+      const response = await fetch('../backend/orders.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData)
@@ -526,7 +687,7 @@
     }
 
     async function updateOrder(id, payload) {
-      const response = await fetch(`../orders.php?id=${encodeURIComponent(id)}`, {
+      const response = await fetch(`../backend/orders.php?id=${encodeURIComponent(id)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -546,7 +707,7 @@
     }
 
     async function deleteOrder(id) {
-      const response = await fetch(`../orders.php?id=${encodeURIComponent(id)}`, {
+      const response = await fetch(`../backend/orders.php?id=${encodeURIComponent(id)}`, {
         method: 'DELETE'
       });
       const text = await response.text();
@@ -564,7 +725,7 @@
     }
 
     async function getOrderById(id) {
-      const response = await fetch(`../orders.php?id=${encodeURIComponent(id)}`);
+      const response = await fetch(`../backend/orders.php?id=${encodeURIComponent(id)}`);
       const text = await response.text();
       let data;
       try {
@@ -580,7 +741,7 @@
     }
 
     async function getInventory() {
-      const response = await fetch('../inventory.php');
+      const response = await fetch('../backend/inventory.php');
       const text = await response.text();
       let data;
       try {
@@ -596,7 +757,7 @@
     }
 
     async function createInventoryItem(payload) {
-      const response = await fetch('../inventory.php', {
+      const response = await fetch('../backend/inventory.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -616,7 +777,7 @@
     }
 
     async function updateInventoryItem(id, payload) {
-      const response = await fetch(`../inventory.php?id=${encodeURIComponent(id)}`, {
+      const response = await fetch(`../backend/inventory.php?id=${encodeURIComponent(id)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -636,7 +797,7 @@
     }
 
     async function deleteInventoryItem(id) {
-      const response = await fetch(`../inventory.php?id=${encodeURIComponent(id)}`, {
+      const response = await fetch(`../backend/inventory.php?id=${encodeURIComponent(id)}`, {
         method: 'DELETE'
       });
       const text = await response.text();
@@ -682,6 +843,23 @@
       } catch (e) {
         console.error('Failed to adjust inventory for order:', e);
       }
+    }
+
+    async function syncInventoryForReceivedOrder(orderId) {
+      const order = await getOrderById(orderId);
+      const alreadyRecorded = parseInt(order.inventory_recorded, 10) === 1;
+
+      if (alreadyRecorded) {
+        return false;
+      }
+
+      if (order.status !== 'completed' || order.payment_status !== 'paid') {
+        return false;
+      }
+
+      await adjustInventoryForOrder(order);
+      await updateOrder(orderId, { inventory_recorded: 1 });
+      return true;
     }
 
     // Check if user is logged in
@@ -750,11 +928,16 @@
     };
 
     // Section navigation
-    window.showSection = function(section) {
+    function activateSection(section) {
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-      
-      event.target.classList.add('active');
+
+      const tabButtons = Array.from(document.querySelectorAll('.tab-btn'));
+      const activeButton = tabButtons.find(btn => btn.getAttribute('onclick') === `showSection('${section}')`);
+      if (activeButton) {
+        activeButton.classList.add('active');
+      }
+
       document.getElementById(section + '-section').classList.add('active');
       
       if (section === 'admin-vendors') {
@@ -763,11 +946,260 @@
         loadVendors();
       } else if (section === 'orders') {
         loadOrders();
+      } else if (section === 'assistant') {
+        loadProcurementAssistant();
       } else if (section === 'reports') {
         loadReports();
       } else if (section === 'inventory') {
         loadInventory();
       }
+    }
+
+    window.showSection = function(section) {
+      activateSection(section);
+    };
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function normalizeText(value) {
+      return String(value || '').trim().toLowerCase();
+    }
+
+    function splitLooseList(value) {
+      return String(value || '')
+        .split(/[\n,;]+/)
+        .map(item => item.trim())
+        .filter(Boolean);
+    }
+
+    function parseJsonSafely(value) {
+      if (!value || typeof value !== 'string') return null;
+      try {
+        return JSON.parse(value);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function getVendorItemList(vendor) {
+      const items = [];
+      const parsedSupply = Array.isArray(vendor.supply_items)
+        ? vendor.supply_items
+        : parseJsonSafely(vendor.supply_items);
+      const parsedItems = Array.isArray(vendor.items)
+        ? vendor.items
+        : parseJsonSafely(vendor.items);
+
+      if (Array.isArray(parsedSupply)) items.push(...parsedSupply);
+      if (Array.isArray(parsedItems)) items.push(...parsedItems);
+      if (items.length === 0) {
+        items.push(...splitLooseList(vendor.supply_items));
+        items.push(...splitLooseList(vendor.items));
+      }
+
+      return items.map(item => String(item).trim()).filter(Boolean);
+    }
+
+    function findMatchingVendorItem(vendor, itemName) {
+      const desired = normalizeText(itemName);
+      return getVendorItemList(vendor).find(item => {
+        const normalized = normalizeText(item);
+        return normalized === desired || normalized.includes(desired) || desired.includes(normalized);
+      }) || null;
+    }
+
+    function parseVendorPriceLookup(vendor) {
+      const lookup = {};
+      const items = getVendorItemList(vendor);
+      const rawPrices = vendor.prices;
+      const parsed = parseJsonSafely(rawPrices);
+
+      if (parsed && !Array.isArray(parsed) && typeof parsed === 'object') {
+        Object.entries(parsed).forEach(([key, value]) => {
+          const amount = parseFloat(value);
+          if (!Number.isNaN(amount)) lookup[normalizeText(key)] = amount;
+        });
+        return lookup;
+      }
+
+      if (Array.isArray(parsed)) {
+        parsed.forEach((value, index) => {
+          const amount = parseFloat(value);
+          const key = items[index] ? normalizeText(items[index]) : '';
+          if (key && !Number.isNaN(amount)) lookup[key] = amount;
+        });
+        return lookup;
+      }
+
+      const entries = splitLooseList(rawPrices);
+      const mappedEntries = entries.filter(entry => entry.includes(':'));
+      if (mappedEntries.length) {
+        mappedEntries.forEach(entry => {
+          const parts = entry.split(':');
+          const label = normalizeText(parts.shift());
+          const amount = parseFloat(parts.join(':').replace(/[^\d.]/g, ''));
+          if (label && !Number.isNaN(amount)) lookup[label] = amount;
+        });
+        return lookup;
+      }
+
+      entries.forEach((entry, index) => {
+        const amount = parseFloat(String(entry).replace(/[^\d.]/g, ''));
+        const key = items[index] ? normalizeText(items[index]) : '';
+        if (key && !Number.isNaN(amount)) lookup[key] = amount;
+      });
+
+      return lookup;
+    }
+
+    function estimateVendorUnitPrice(vendor, itemName) {
+      const lookup = parseVendorPriceLookup(vendor);
+      const desired = normalizeText(itemName);
+
+      if (lookup[desired] != null) return lookup[desired];
+
+      const partialKey = Object.keys(lookup).find(key => key.includes(desired) || desired.includes(key));
+      if (partialKey) return lookup[partialKey];
+
+      return null;
+    }
+
+    function getInventoryMatch(items, itemName) {
+      const desired = normalizeText(itemName);
+      return items.find(item => {
+        const itemLabel = normalizeText(item.item_name);
+        return itemLabel === desired || itemLabel.includes(desired) || desired.includes(itemLabel);
+      }) || null;
+    }
+
+    function buildProcurementSuggestion(itemName, quantity, inventoryItems, vendors) {
+      const inventoryMatch = getInventoryMatch(inventoryItems, itemName);
+      const stockQty = parseInt(inventoryMatch?.quantity, 10) || 0;
+      const reorderLevel = parseInt(inventoryMatch?.reorder_level, 10) || 0;
+      const shortage = Math.max(quantity - stockQty, 0);
+
+      const matches = vendors
+        .filter(vendor => vendor.status === 'approved')
+        .map(vendor => {
+          const matchedItem = findMatchingVendorItem(vendor, itemName);
+          if (!matchedItem) return null;
+          const unitPrice = estimateVendorUnitPrice(vendor, matchedItem || itemName);
+          const finalQty = shortage > 0 ? shortage : quantity;
+          return {
+            id: vendor.id,
+            name: vendor.name,
+            contact: vendor.contact_info || 'No contact listed',
+            location: vendor.location || 'Location not provided',
+            itemLabel: matchedItem,
+            unitPrice,
+            totalPrice: unitPrice != null ? unitPrice * finalQty : null,
+            quantityToOrder: finalQty,
+            idNumber: vendor.id_number || ''
+          };
+        })
+        .filter(Boolean)
+        .sort((a, b) => {
+          if (a.unitPrice == null && b.unitPrice == null) return a.name.localeCompare(b.name);
+          if (a.unitPrice == null) return 1;
+          if (b.unitPrice == null) return -1;
+          return a.unitPrice - b.unitPrice;
+        });
+
+      return {
+        itemName,
+        quantity,
+        inventoryMatch,
+        stockQty,
+        reorderLevel,
+        shortage,
+        matches
+      };
+    }
+
+    function renderProcurementSuggestion(result) {
+      const target = document.getElementById('assistant-results');
+      const stockState = result.shortage > 0
+        ? 'Needs ordering'
+        : result.stockQty <= result.reorderLevel
+          ? 'In stock but below reorder level'
+          : 'In stock';
+      const recommendation = result.matches[0] || null;
+
+      const vendorHtml = result.matches.length
+        ? `
+          <div class="assistant-vendor-list">
+            ${result.matches.slice(0, 3).map((vendor, index) => `
+              <div class="assistant-vendor">
+                <div>
+                  <strong>${index === 0 ? 'Best Match: ' : ''}${escapeHtml(vendor.name)}</strong>
+                  <div class="assistant-subtle">Supplies: ${escapeHtml(vendor.itemLabel || result.itemName)}</div>
+                  <div class="assistant-subtle">Contact: ${escapeHtml(vendor.contact)}</div>
+                  <div class="assistant-subtle">Location: ${escapeHtml(vendor.location)}</div>
+                </div>
+                <div>
+                  <div><strong>${vendor.unitPrice != null ? `KSH ${vendor.unitPrice.toLocaleString()} / unit` : 'Price not listed'}</strong></div>
+                  <div class="assistant-subtle">${vendor.totalPrice != null ? `Estimated total: KSH ${vendor.totalPrice.toLocaleString()}` : 'Total estimate unavailable'}</div>
+                  <button type="button" class="nav-btn" style="margin-top:10px;" onclick="useProcurementSuggestion(${vendor.id}, '${encodeURIComponent(result.itemName)}', ${vendor.quantityToOrder}, ${vendor.unitPrice != null ? vendor.unitPrice : 'null'}, '${encodeURIComponent(vendor.idNumber || '')}')">Use This Suggestion</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `
+        : '<div class="assistant-empty">No approved vendor match found for this item yet. Add or approve a vendor with this supply item to enable quick suggestions.</div>';
+
+      target.className = '';
+      target.innerHTML = `
+        <div class="assistant-grid">
+          <div class="assistant-card">
+            <h4>Requested Item</h4>
+            <div class="assistant-metric">${escapeHtml(result.itemName)}</div>
+            <div class="assistant-subtle">Requested quantity: ${result.quantity}</div>
+          </div>
+          <div class="assistant-card">
+            <h4>Inventory Check</h4>
+            <div class="assistant-metric">${result.stockQty}</div>
+            <div class="assistant-subtle">Current stock ${result.inventoryMatch?.unit ? '(' + escapeHtml(result.inventoryMatch.unit) + ')' : ''}</div>
+          </div>
+          <div class="assistant-card">
+            <h4>Status</h4>
+            <div class="assistant-metric">${escapeHtml(stockState)}</div>
+            <div class="assistant-subtle">Reorder level: ${result.reorderLevel}</div>
+          </div>
+          <div class="assistant-card">
+            <h4>Recommended Order</h4>
+            <div class="assistant-metric">${result.shortage > 0 ? result.shortage : 0}</div>
+            <div class="assistant-subtle">${recommendation ? `Best vendor: ${escapeHtml(recommendation.name)}` : 'Waiting for vendor match'}</div>
+          </div>
+        </div>
+        ${vendorHtml}
+      `;
+    }
+
+    function loadProcurementAssistant() {
+      const results = document.getElementById('assistant-results');
+      if (results && !results.innerHTML.trim()) {
+        results.className = 'assistant-empty';
+        results.textContent = 'Enter an item and quantity to get a stock check and vendor recommendation.';
+      }
+    }
+
+    window.useProcurementSuggestion = function(vendorId, itemName, quantity, unitPrice, vendorIdNumber) {
+      pendingOrderSuggestion = {
+        vendorId: String(vendorId),
+        itemName: decodeURIComponent(itemName),
+        quantity,
+        unitPrice: unitPrice != null ? unitPrice : 0,
+        vendorIdNumber: decodeURIComponent(vendorIdNumber || '')
+      };
+      activateSection('orders');
+      showMessage('Suggestion applied to the order form.', 'success');
     };
 
     // Load vendors
@@ -911,6 +1343,16 @@
         const sel = document.getElementById('order-vendor');
         sel.innerHTML = '<option value="">-- Select vendor --</option>' +
           approved.map(v => `<option value="${v.id}" data-idnumber="${v.id_number || ''}">${v.name} (${v.id_number || v.id})</option>`).join('');
+
+        if (pendingOrderSuggestion) {
+          document.getElementById('order-vendor').value = pendingOrderSuggestion.vendorId;
+          document.getElementById('order-product').value = pendingOrderSuggestion.itemName;
+          document.getElementById('order-quantity').value = pendingOrderSuggestion.quantity;
+          document.getElementById('order-unit-price').value = pendingOrderSuggestion.unitPrice;
+          document.getElementById('order-result').innerHTML =
+            '<span style="color:#17a2b8;">Order form pre-filled from Smart Procurement Assistant.</span>';
+          pendingOrderSuggestion = null;
+        }
       } catch (error) {
         console.error('Error loading orders:', error);
         document.querySelector('#orders-table tbody').innerHTML = '<tr><td colspan="8" style="color:red;">Failed to load orders.</td></tr>';
@@ -958,8 +1400,13 @@
       try {
         const result = await updateOrder(id, { status: 'completed' });
         if (result && result.success) {
-          showMessage('Order marked as completed.', 'success');
+          const inventoryUpdated = await syncInventoryForReceivedOrder(id);
+          showMessage(
+            inventoryUpdated ? 'Order completed and inventory updated.' : 'Order marked as completed.',
+            'success'
+          );
           loadOrders();
+          loadInventory();
         }
       } catch (err) {
         showMessage('Failed to update order status.', 'error');
@@ -977,9 +1424,13 @@
 
         const result = await updateOrder(id, { payment_status: 'paid' });
         if (result && result.success) {
-          showMessage('Order marked as paid.', 'success');
-          await adjustInventoryForOrder(order);
+          const inventoryUpdated = await syncInventoryForReceivedOrder(id);
+          showMessage(
+            inventoryUpdated ? 'Order marked as paid and inventory updated.' : 'Order marked as paid.',
+            'success'
+          );
           loadOrders();
+          loadInventory();
         }
       } catch (err) {
         showMessage('Failed to update payment status.', 'error');
@@ -989,8 +1440,45 @@
     // Load reports
     async function loadReports() {
       try {
-        const vendors = await getVendors();
-        const orders = await getOrders();
+        const [vendors, orders, inventoryItems] = await Promise.all([getVendors(), getOrders(), getInventory()]);
+        const approvedVendors = vendors.filter(v => v.status === 'approved');
+        const pendingVendors = vendors.filter(v => !v.status || v.status === 'pending');
+        const declinedVendors = vendors.filter(v => v.status === 'declined');
+        const totalSpend = orders.reduce((sum, o) => sum + (parseFloat(o.total_price) || 0), 0);
+        const paidSpend = orders
+          .filter(o => o.payment_status === 'paid')
+          .reduce((sum, o) => sum + (parseFloat(o.total_price) || 0), 0);
+        const unpaidSpend = Math.max(totalSpend - paidSpend, 0);
+        const paidOrders = orders.filter(o => o.payment_status === 'paid');
+        const unpaidOrders = orders.filter(o => o.payment_status !== 'paid');
+        const completedOrders = orders.filter(o => o.status === 'completed');
+        const lowStockItems = inventoryItems.filter(item => {
+          const qty = parseInt(item.quantity, 10) || 0;
+          const reorder = parseInt(item.reorder_level, 10) || 0;
+          return qty <= reorder;
+        });
+        const vendorMap = {};
+        vendors.forEach(v => { vendorMap[v.id] = v.name; });
+
+        const itemSummaryMap = {};
+        orders.forEach(order => {
+          const key = normalizeText(order.product || 'Unknown item');
+          if (!itemSummaryMap[key]) {
+            itemSummaryMap[key] = {
+              label: order.product || 'Unknown item',
+              quantity: 0,
+              spend: 0
+            };
+          }
+          itemSummaryMap[key].quantity += parseInt(order.quantity, 10) || 0;
+          itemSummaryMap[key].spend += parseFloat(order.total_price) || 0;
+        });
+        const topItems = Object.values(itemSummaryMap)
+          .sort((a, b) => b.quantity - a.quantity || b.spend - a.spend)
+          .slice(0, 5);
+        const recentOrders = [...orders]
+          .sort((a, b) => new Date(b.order_date || 0) - new Date(a.order_date || 0))
+          .slice(0, 5);
         
         const stats = document.getElementById('reports-stats');
         stats.innerHTML = `
@@ -1007,15 +1495,126 @@
             <div class="stat-label">Total Orders</div>
           </div>
           <div class="stat-card">
-            <div class="stat-value">KSH ${orders.reduce((sum, o) => sum + (parseFloat(o.total_price) || 0), 0).toLocaleString()}</div>
+            <div class="stat-value">KSH ${totalSpend.toLocaleString()}</div>
             <div class="stat-label">Total Value</div>
           </div>
         `;
         
         const content = document.getElementById('reports-content');
-        content.innerHTML = '<p>Reports loaded successfully</p>';
+        content.innerHTML = `
+          <div class="report-grid">
+            <div class="report-section">
+              <h3>Vendor Status</h3>
+              <ul class="report-list">
+                <li><span>Approved Vendors</span><strong>${approvedVendors.length}</strong></li>
+                <li><span>Pending Vendors</span><strong>${pendingVendors.length}</strong></li>
+                <li><span>Declined Vendors</span><strong>${declinedVendors.length}</strong></li>
+              </ul>
+            </div>
+
+            <div class="report-section">
+              <h3>Payments</h3>
+              <ul class="report-list">
+                <li><span>Paid Orders</span><strong>${paidOrders.length}</strong></li>
+                <li><span>Unpaid Orders</span><strong>${unpaidOrders.length}</strong></li>
+                <li><span>Paid Value</span><strong>KSH ${paidSpend.toLocaleString()}</strong></li>
+                <li><span>Outstanding Value</span><strong>KSH ${unpaidSpend.toLocaleString()}</strong></li>
+              </ul>
+            </div>
+
+            <div class="report-section">
+              <h3>Operations</h3>
+              <ul class="report-list">
+                <li><span>Completed Orders</span><strong>${completedOrders.length}</strong></li>
+                <li><span>Open Orders</span><strong>${Math.max(orders.length - completedOrders.length, 0)}</strong></li>
+                <li><span>Inventory Items</span><strong>${inventoryItems.length}</strong></li>
+                <li><span>Low Stock Items</span><strong>${lowStockItems.length}</strong></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="report-section">
+            <h3>Top Ordered Items</h3>
+            ${topItems.length ? `
+              <ul class="report-list">
+                ${topItems.map(item => `
+                  <li>
+                    <span>${escapeHtml(item.label)}</span>
+                    <strong>${item.quantity} units | KSH ${item.spend.toLocaleString()}</strong>
+                  </li>
+                `).join('')}
+              </ul>
+            ` : '<div class="report-note">No orders available yet.</div>'}
+          </div>
+
+          <div class="report-section">
+            <h3>Low Stock Inventory</h3>
+            ${lowStockItems.length ? `
+              <div class="report-table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Item</th>
+                      <th>Category</th>
+                      <th>Qty</th>
+                      <th>Reorder Level</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${lowStockItems.map(item => `
+                      <tr>
+                        <td>${escapeHtml(item.item_name || '-')}</td>
+                        <td>${escapeHtml(item.category || '-')}</td>
+                        <td>${parseInt(item.quantity, 10) || 0}</td>
+                        <td>${parseInt(item.reorder_level, 10) || 0}</td>
+                        <td><span class="status-badge status-pending">Reorder Needed</span></td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            ` : '<div class="report-note">No low-stock items right now.</div>'}
+          </div>
+
+          <div class="report-section">
+            <h3>Recent Orders</h3>
+            ${recentOrders.length ? `
+              <div class="report-table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Vendor</th>
+                      <th>Qty</th>
+                      <th>Total</th>
+                      <th>Status</th>
+                      <th>Payment</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${recentOrders.map(order => `
+                      <tr>
+                        <td>${escapeHtml(order.product || '-')}</td>
+                        <td>${escapeHtml(vendorMap[order.vendor_id] || order.vendor_id_number || '-')}</td>
+                        <td>${parseInt(order.quantity, 10) || 0}</td>
+                        <td>KSH ${(parseFloat(order.total_price) || 0).toLocaleString()}</td>
+                        <td><span class="status-badge status-${escapeHtml(order.status || 'pending')}">${escapeHtml(order.status || 'pending')}</span></td>
+                        <td>${escapeHtml(order.payment_status || 'pending')}</td>
+                        <td>${order.order_date ? new Date(order.order_date).toLocaleDateString() : '-'}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            ` : '<div class="report-note">No recent orders yet.</div>'}
+          </div>
+        `;
       } catch (error) {
         console.error('Error loading reports:', error);
+        document.getElementById('reports-content').innerHTML =
+          '<div class="report-section"><div class="report-note" style="color:#dc3545;">Failed to load reports.</div></div>';
       }
     }
 
@@ -1096,6 +1695,32 @@
         loadInventory();
       } catch (err) {
         resultDiv.innerHTML = '<span style="color:#dc3545;">Error: ' + err.message + '</span>';
+      }
+    });
+
+    document.getElementById('assistant-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const itemName = document.getElementById('assistant-item').value.trim();
+      const quantity = parseInt(document.getElementById('assistant-qty').value, 10) || 0;
+      const resultBox = document.getElementById('assistant-results');
+
+      if (!itemName || quantity <= 0) {
+        resultBox.className = 'assistant-empty';
+        resultBox.textContent = 'Enter a valid item and quantity to continue.';
+        return;
+      }
+
+      resultBox.className = 'assistant-empty';
+      resultBox.textContent = 'Checking inventory and matching approved vendors...';
+
+      try {
+        const [vendors, inventoryItems] = await Promise.all([getVendors(), getInventory()]);
+        const suggestion = buildProcurementSuggestion(itemName, quantity, inventoryItems, vendors);
+        renderProcurementSuggestion(suggestion);
+      } catch (err) {
+        resultBox.className = 'assistant-empty';
+        resultBox.textContent = 'Unable to analyze this request right now.';
+        console.error('Assistant analysis failed:', err);
       }
     });
 

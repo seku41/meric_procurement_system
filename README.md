@@ -68,9 +68,10 @@ Local XAMPP still works because `db.php` falls back to:
 1. Push this project to GitHub.
 2. In Render, create a new `Web Service`.
 3. Connect the repository.
-4. Render will detect the `Dockerfile`.
+4. Choose the Docker runtime. Render will build from the root `Dockerfile`.
 5. Add the database environment variables listed above.
 6. Deploy the service.
 
 ### 4. App URL
-- The root URL now redirects to `hotel_accounts/index.html`, so your Render domain opens the main app directly.
+- The root URL now redirects to `frontend/index.html`, so your Render domain opens the main app directly.
+- Frontend pages call the API through the `backend/` path, for example `backend/login.php`.

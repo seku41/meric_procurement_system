@@ -112,7 +112,7 @@
             resultDiv.innerHTML = '';
             
             try {
-                const response = await fetch('../setup_database.php');
+                const response = await fetch('../backend/setup_database.php');
                 const text = await response.text();
                 
                 if (response.ok) {

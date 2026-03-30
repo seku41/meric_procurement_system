@@ -109,6 +109,7 @@ try {
             `deadline` DATE DEFAULT NULL,
             `status` ENUM('pending', 'processing', 'completed', 'cancelled') DEFAULT 'pending',
             `payment_status` ENUM('pending', 'paid') DEFAULT 'pending',
+            `inventory_recorded` TINYINT(1) NOT NULL DEFAULT 0,
             `order_date` DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (`vendor_id`) REFERENCES `vendors`(`id`) ON DELETE CASCADE,
             FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
@@ -122,9 +123,29 @@ try {
     echo "✅ Orders table created successfully.\n";
     
     // =====================================================
+    // Create inventory table
+    // =====================================================
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS `inventory` (
+            `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            `item_name` VARCHAR(150) NOT NULL,
+            `category` VARCHAR(100) DEFAULT NULL,
+            `quantity` INT NOT NULL DEFAULT 0,
+            `unit` VARCHAR(30) DEFAULT NULL,
+            `reorder_level` INT NOT NULL DEFAULT 0,
+            `notes` TEXT DEFAULT NULL,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX `idx_inventory_item_name` (`item_name`),
+            INDEX `idx_inventory_category` (`category`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+    echo "Inventory table created successfully.\n";
+    
+    // =====================================================
     // Verify tables were created
     // =====================================================
-    $tables = ['users', 'vendors', 'orders'];
+    $tables = ['users', 'vendors', 'orders', 'inventory'];
     $allCreated = true;
     
     foreach ($tables as $table) {

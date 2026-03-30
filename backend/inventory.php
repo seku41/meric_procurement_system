@@ -4,6 +4,24 @@ require_once 'db.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 
+function ensureInventoryTable(PDO $pdo) {
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS `inventory` (
+            `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            `item_name` VARCHAR(150) NOT NULL,
+            `category` VARCHAR(100) DEFAULT NULL,
+            `quantity` INT NOT NULL DEFAULT 0,
+            `unit` VARCHAR(30) DEFAULT NULL,
+            `reorder_level` INT NOT NULL DEFAULT 0,
+            `notes` TEXT DEFAULT NULL,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            KEY `idx_inventory_item_name` (`item_name`),
+            KEY `idx_inventory_category` (`category`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+}
+
 function readJsonBody() {
     $raw = file_get_contents('php://input');
     if ($raw === false || $raw === '') return null;
@@ -11,6 +29,8 @@ function readJsonBody() {
 }
 
 try {
+    ensureInventoryTable($pdo);
+
     switch ($method) {
         case 'GET':
             if (isset($_GET['id'])) {
@@ -110,6 +130,6 @@ try {
     }
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Server error']);
+    echo json_encode(['error' => 'Server error: ' . $e->getMessage()]);
 }
 

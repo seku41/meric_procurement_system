@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vendor Portal - Hotel Procurement System</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="../css/style.css">
   <style>
     body { 
       background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.8) 50%, rgba(0, 0, 0, 0.7) 100%);
@@ -576,7 +576,7 @@
 
   <script>
     async function getVendors() {
-      const response = await fetch('../vendors.php');
+      const response = await fetch('../backend/vendors.php');
       if (!response.ok) {
         throw new Error('Failed to fetch vendors');
       }
@@ -584,7 +584,7 @@
     }
 
     async function addVendor(vendorData) {
-      const response = await fetch('../vendors.php', {
+      const response = await fetch('../backend/vendors.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(vendorData)
@@ -638,6 +638,32 @@
       }
     });
 
+    function validatePaymentDetails(paymentMethod, paymentDetails) {
+      if (!paymentMethod) {
+        return 'Please select a payment method.';
+      }
+
+      if (paymentMethod === 'Bank Transfer') {
+        if (!paymentDetails.bankFullName || !paymentDetails.bankName || !paymentDetails.bankAccountNumber) {
+          return 'Please fill in all bank transfer details.';
+        }
+      } else if (paymentMethod === 'Mobile Money') {
+        if (!paymentDetails.mpesaName || !paymentDetails.mpesaPhone) {
+          return 'Please fill in all mobile money details.';
+        }
+      } else if (paymentMethod === 'PayPal') {
+        if (!paymentDetails.paypalEmail) {
+          return 'Please enter your PayPal email.';
+        }
+      } else if (paymentMethod === 'Card') {
+        if (!paymentDetails.cardFullName || !paymentDetails.cardBankAccount || !paymentDetails.cardNumber) {
+          return 'Please fill in all card payment details.';
+        }
+      }
+
+      return null;
+    }
+
     // Registration form
     const regForm = document.getElementById('vendor-register-form');
     const regSuccess = document.getElementById('register-success');
@@ -687,6 +713,14 @@
           cardNumber: document.getElementById('card-number').value.trim()
         };
       }
+
+      const paymentValidationError = validatePaymentDetails(paymentMethod, paymentDetails);
+      if (paymentValidationError) {
+        regError.innerText = paymentValidationError;
+        regError.style.display = 'block';
+        regSuccess.style.display = 'none';
+        return;
+      }
       
       try {
         // Check for duplicate ID
@@ -710,6 +744,10 @@
         
         if (result && result.success) {
           regForm.reset();
+          document.getElementById('bank-transfer-fields').style.display = 'none';
+          document.getElementById('mobile-money-fields').style.display = 'none';
+          document.getElementById('paypal-fields').style.display = 'none';
+          document.getElementById('card-fields').style.display = 'none';
           regSuccess.innerText = 'Registration successful! Await admin approval.';
           regSuccess.style.display = 'block';
           regError.style.display = 'none';
