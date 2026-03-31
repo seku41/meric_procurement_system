@@ -2,6 +2,14 @@
 header('Content-Type: application/json');
 require_once 'db.php';
 
+function encodeJsonField($value) {
+    if (is_array($value) || is_object($value)) {
+        return json_encode($value);
+    }
+
+    return $value;
+}
+
 function decodeVendorRow(array $vendor): array {
     foreach (['supply_items', 'payment_details', 'images'] as $jsonField) {
         if (!empty($vendor[$jsonField]) && is_string($vendor[$jsonField])) {
@@ -40,6 +48,8 @@ try {
                 exit;
             }
 
+            $status = $data['status'] ?? 'pending';
+
             $stmt = $pdo->prepare('INSERT INTO vendors (
                 name, contact_info, id_number, supply_items, items, prices,
                 specifications, size, color, location, delivery_method,
@@ -50,7 +60,7 @@ try {
                 $data['name'],
                 $data['contact_info'] ?? null,
                 $data['id_number'] ?? null,
-                is_array($data['supply_items']) ? json_encode($data['supply_items']) : ($data['supply_items'] ?? null),
+                encodeJsonField($data['supply_items'] ?? null),
                 $data['items'] ?? null,
                 $data['prices'] ?? null,
                 $data['specifications'] ?? null,
@@ -60,9 +70,10 @@ try {
                 $data['delivery_method'] ?? null,
                 $data['delivery_date'] ?? null,
                 $data['payment_method'] ?? null,
-                is_array($data['payment_details']) ? json_encode($data['payment_details']) : ($data['payment_details'] ?? null),
-            is_array($data['images']) ? json_encode($data['images']) : ($data['images'] ?? null),
-            $data['user_id'] ?? null
+                encodeJsonField($data['payment_details'] ?? null),
+                encodeJsonField($data['images'] ?? null),
+                $data['user_id'] ?? null,
+                $status
             ]);
 
             echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
@@ -94,8 +105,8 @@ try {
                 }
 
                 $fields[] = "`$field` = ?";
-                if (in_array($field, ['supply_items', 'payment_details', 'images'], true) && is_array($data[$field])) {
-                    $params[] = json_encode($data[$field]);
+                if (in_array($field, ['supply_items', 'payment_details', 'images'], true)) {
+                    $params[] = encodeJsonField($data[$field]);
                 } else {
                     $params[] = $data[$field];
                 }

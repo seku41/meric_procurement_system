@@ -532,6 +532,7 @@
                 <th>Qty</th>
                 <th>Unit</th>
                 <th>Reorder</th>
+                <th>Status</th>
                 <th>Updated</th>
                 <th>Actions</th>
               </tr>
@@ -970,6 +971,12 @@
 
     function normalizeText(value) {
       return String(value || '').trim().toLowerCase();
+    }
+
+    function getInventoryStockStatus(quantity) {
+      return quantity > 50
+        ? { label: 'In Stock', className: 'status-completed' }
+        : { label: 'Out of Stock', className: 'status-cancelled' };
     }
 
     function splitLooseList(value) {
@@ -1452,11 +1459,7 @@
         const paidOrders = orders.filter(o => o.payment_status === 'paid');
         const unpaidOrders = orders.filter(o => o.payment_status !== 'paid');
         const completedOrders = orders.filter(o => o.status === 'completed');
-        const lowStockItems = inventoryItems.filter(item => {
-          const qty = parseInt(item.quantity, 10) || 0;
-          const reorder = parseInt(item.reorder_level, 10) || 0;
-          return qty <= reorder;
-        });
+        const outOfStockItems = inventoryItems.filter(item => (parseInt(item.quantity, 10) || 0) <= 50);
         const vendorMap = {};
         vendors.forEach(v => { vendorMap[v.id] = v.name; });
 
@@ -1528,7 +1531,7 @@
                 <li><span>Completed Orders</span><strong>${completedOrders.length}</strong></li>
                 <li><span>Open Orders</span><strong>${Math.max(orders.length - completedOrders.length, 0)}</strong></li>
                 <li><span>Inventory Items</span><strong>${inventoryItems.length}</strong></li>
-                <li><span>Low Stock Items</span><strong>${lowStockItems.length}</strong></li>
+                <li><span>Out of Stock Items</span><strong>${outOfStockItems.length}</strong></li>
               </ul>
             </div>
           </div>
@@ -1548,8 +1551,8 @@
           </div>
 
           <div class="report-section">
-            <h3>Low Stock Inventory</h3>
-            ${lowStockItems.length ? `
+            <h3>Out of Stock Inventory</h3>
+            ${outOfStockItems.length ? `
               <div class="report-table-wrap">
                 <table>
                   <thead>
@@ -1562,19 +1565,19 @@
                     </tr>
                   </thead>
                   <tbody>
-                    ${lowStockItems.map(item => `
+                    ${outOfStockItems.map(item => `
                       <tr>
                         <td>${escapeHtml(item.item_name || '-')}</td>
                         <td>${escapeHtml(item.category || '-')}</td>
                         <td>${parseInt(item.quantity, 10) || 0}</td>
                         <td>${parseInt(item.reorder_level, 10) || 0}</td>
-                        <td><span class="status-badge status-pending">Reorder Needed</span></td>
+                        <td><span class="status-badge status-cancelled">Out of Stock</span></td>
                       </tr>
                     `).join('')}
                   </tbody>
                 </table>
               </div>
-            ` : '<div class="report-note">No low-stock items right now.</div>'}
+            ` : '<div class="report-note">No out-of-stock items right now.</div>'}
           </div>
 
           <div class="report-section">
@@ -1632,25 +1635,31 @@
         }
         emptyMsg.style.display = 'none';
 
-        tbody.innerHTML = items.map((it, i) => `
-          <tr>
-            <td>${i + 1}</td>
-            <td>${(it.item_name || '').replace(/</g, '&lt;')}</td>
-            <td>${it.category || '-'}</td>
-            <td>${it.quantity ?? 0}</td>
-            <td>${it.unit || '-'}</td>
-            <td>${it.reorder_level ?? 0}</td>
-            <td>${it.updated_at ? new Date(it.updated_at).toLocaleString() : '-'}</td>
-            <td>
-              <button class="action-btn btn-edit" onclick="editInventory(${it.id})">Edit</button>
-              <button class="action-btn btn-decline" onclick="removeInventory(${it.id})">Delete</button>
-            </td>
-          </tr>
-        `).join('');
+        tbody.innerHTML = items.map((it, i) => {
+          const quantity = parseInt(it.quantity, 10) || 0;
+          const stockStatus = getInventoryStockStatus(quantity);
+
+          return `
+            <tr>
+              <td>${i + 1}</td>
+              <td>${(it.item_name || '').replace(/</g, '&lt;')}</td>
+              <td>${it.category || '-'}</td>
+              <td>${quantity}</td>
+              <td>${it.unit || '-'}</td>
+              <td>${it.reorder_level ?? 0}</td>
+              <td><span class="status-badge ${stockStatus.className}">${stockStatus.label}</span></td>
+              <td>${it.updated_at ? new Date(it.updated_at).toLocaleString() : '-'}</td>
+              <td>
+                <button class="action-btn btn-edit" onclick="editInventory(${it.id})">Edit</button>
+                <button class="action-btn btn-decline" onclick="removeInventory(${it.id})">Delete</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
       } catch (err) {
         console.error('Error loading inventory:', err);
         document.querySelector('#inventory-table tbody').innerHTML =
-          '<tr><td colspan="8" style="color:red;">Failed to load inventory.</td></tr>';
+          '<tr><td colspan="9" style="color:red;">Failed to load inventory.</td></tr>';
       }
     }
 
