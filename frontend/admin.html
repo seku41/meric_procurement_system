@@ -1460,6 +1460,14 @@
         const unpaidOrders = orders.filter(o => o.payment_status !== 'paid');
         const completedOrders = orders.filter(o => o.status === 'completed');
         const outOfStockItems = inventoryItems.filter(item => (parseInt(item.quantity, 10) || 0) <= 50);
+        const usedStockItems = inventoryItems
+          .map(item => ({
+            ...item,
+            used_quantity: parseInt(item.used_quantity, 10) || 0
+          }))
+          .filter(item => item.used_quantity > 0)
+          .sort((a, b) => b.used_quantity - a.used_quantity || new Date(b.last_used_at || 0) - new Date(a.last_used_at || 0));
+        const totalUsedStock = usedStockItems.reduce((sum, item) => sum + item.used_quantity, 0);
         const vendorMap = {};
         vendors.forEach(v => { vendorMap[v.id] = v.name; });
 
@@ -1532,6 +1540,7 @@
                 <li><span>Open Orders</span><strong>${Math.max(orders.length - completedOrders.length, 0)}</strong></li>
                 <li><span>Inventory Items</span><strong>${inventoryItems.length}</strong></li>
                 <li><span>Out of Stock Items</span><strong>${outOfStockItems.length}</strong></li>
+                <li><span>Total Used Stock</span><strong>${totalUsedStock}</strong></li>
               </ul>
             </div>
           </div>
@@ -1548,6 +1557,36 @@
                 `).join('')}
               </ul>
             ` : '<div class="report-note">No orders available yet.</div>'}
+          </div>
+
+          <div class="report-section">
+            <h3>Used Stock</h3>
+            ${usedStockItems.length ? `
+              <div class="report-table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Item</th>
+                      <th>Used Qty</th>
+                      <th>Remaining Qty</th>
+                      <th>Unit</th>
+                      <th>Last Used</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${usedStockItems.map(item => `
+                      <tr>
+                        <td>${escapeHtml(item.item_name || '-')}</td>
+                        <td>${item.used_quantity}</td>
+                        <td>${parseInt(item.quantity, 10) || 0}</td>
+                        <td>${escapeHtml(item.unit || '-')}</td>
+                        <td>${item.last_used_at ? new Date(item.last_used_at).toLocaleString() : '-'}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            ` : '<div class="report-note">No stock usage has been recorded yet.</div>'}
           </div>
 
           <div class="report-section">
@@ -1650,6 +1689,7 @@
               <td><span class="status-badge ${stockStatus.className}">${stockStatus.label}</span></td>
               <td>${it.updated_at ? new Date(it.updated_at).toLocaleString() : '-'}</td>
               <td>
+                <button class="action-btn" onclick="useInventory(${it.id})">Use Stock</button>
                 <button class="action-btn btn-edit" onclick="editInventory(${it.id})">Edit</button>
                 <button class="action-btn btn-decline" onclick="removeInventory(${it.id})">Delete</button>
               </td>
@@ -1749,6 +1789,48 @@
         showMessage('Editing inventory item.', 'info');
       } catch (err) {
         showMessage('Failed to load item for edit.', 'error');
+      }
+    };
+
+    window.useInventory = async function(id) {
+      try {
+        const items = await getInventory();
+        const it = items.find(x => String(x.id) === String(id));
+        if (!it) {
+          showMessage('Inventory item not found.', 'error');
+          return;
+        }
+
+        const currentQuantity = parseInt(it.quantity, 10) || 0;
+        if (currentQuantity <= 0) {
+          showMessage('This item is already out of stock.', 'error');
+          return;
+        }
+
+        const input = prompt(`Enter quantity of "${it.item_name}" used in the hotel:`, '1');
+        if (input === null) return;
+
+        const usedQuantity = parseInt(input, 10);
+        if (!Number.isInteger(usedQuantity) || usedQuantity <= 0) {
+          showMessage('Enter a valid quantity greater than zero.', 'error');
+          return;
+        }
+
+        if (usedQuantity > currentQuantity) {
+          showMessage(`Only ${currentQuantity} ${it.unit || 'units'} available in stock.`, 'error');
+          return;
+        }
+
+        await updateInventoryItem(it.id, {
+          quantity: currentQuantity - usedQuantity,
+          used_quantity: (parseInt(it.used_quantity, 10) || 0) + usedQuantity,
+          last_used_at: new Date().toISOString().slice(0, 19).replace('T', ' ')
+        });
+
+        showMessage(`${usedQuantity} ${it.unit || 'unit(s)'} removed from ${it.item_name}.`, 'success');
+        loadInventory();
+      } catch (err) {
+        showMessage(err.message || 'Failed to update stock usage.', 'error');
       }
     };
 

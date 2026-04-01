@@ -11,9 +11,11 @@ function ensureInventoryTable(PDO $pdo) {
             `item_name` VARCHAR(150) NOT NULL,
             `category` VARCHAR(100) DEFAULT NULL,
             `quantity` INT NOT NULL DEFAULT 0,
+            `used_quantity` INT NOT NULL DEFAULT 0,
             `unit` VARCHAR(30) DEFAULT NULL,
             `reorder_level` INT NOT NULL DEFAULT 0,
             `notes` TEXT DEFAULT NULL,
+            `last_used_at` TIMESTAMP NULL DEFAULT NULL,
             `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             KEY `idx_inventory_item_name` (`item_name`),
@@ -22,14 +24,36 @@ function ensureInventoryTable(PDO $pdo) {
     ");
 }
 
+function ensureInventoryUsageColumns(PDO $pdo) {
+    $columns = $pdo->query('SHOW COLUMNS FROM `inventory`')->fetchAll(PDO::FETCH_COLUMN, 0);
+
+    if (!in_array('used_quantity', $columns, true)) {
+        $pdo->exec('ALTER TABLE `inventory` ADD COLUMN `used_quantity` INT NOT NULL DEFAULT 0 AFTER `quantity`');
+    }
+
+    if (!in_array('last_used_at', $columns, true)) {
+        $pdo->exec('ALTER TABLE `inventory` ADD COLUMN `last_used_at` TIMESTAMP NULL DEFAULT NULL AFTER `notes`');
+    }
+}
+
 function readJsonBody() {
     $raw = file_get_contents('php://input');
     if ($raw === false || $raw === '') return null;
     return json_decode($raw, true);
 }
 
+function normalizeInventoryQuantity($value, string $fieldName): int {
+    $quantity = (int)$value;
+    if ($quantity < 0) {
+        throw new InvalidArgumentException($fieldName . ' cannot be negative');
+    }
+
+    return $quantity;
+}
+
 try {
     ensureInventoryTable($pdo);
+    ensureInventoryUsageColumns($pdo);
 
     switch ($method) {
         case 'GET':
@@ -59,9 +83,9 @@ try {
             $stmt->execute([
                 trim($data['item_name']),
                 $data['category'] ?? null,
-                isset($data['quantity']) ? (int)$data['quantity'] : 0,
+                isset($data['quantity']) ? normalizeInventoryQuantity($data['quantity'], 'Quantity') : 0,
                 $data['unit'] ?? null,
-                isset($data['reorder_level']) ? (int)$data['reorder_level'] : 0,
+                isset($data['reorder_level']) ? normalizeInventoryQuantity($data['reorder_level'], 'Reorder level') : 0,
                 $data['notes'] ?? null
             ]);
 
@@ -84,12 +108,15 @@ try {
 
             $fields = [];
             $params = [];
-            $allowed = ['item_name', 'category', 'quantity', 'unit', 'reorder_level', 'notes'];
+            $allowed = ['item_name', 'category', 'quantity', 'used_quantity', 'unit', 'reorder_level', 'notes', 'last_used_at'];
             foreach ($allowed as $field) {
                 if (array_key_exists($field, $data)) {
                     $fields[] = "`$field` = ?";
-                    if ($field === 'quantity' || $field === 'reorder_level') {
-                        $params[] = (int)$data[$field];
+                    if ($field === 'quantity' || $field === 'used_quantity' || $field === 'reorder_level') {
+                        $fieldLabel = $field === 'quantity'
+                            ? 'Quantity'
+                            : ($field === 'used_quantity' ? 'Used quantity' : 'Reorder level');
+                        $params[] = normalizeInventoryQuantity($data[$field], $fieldLabel);
                     } else if ($field === 'item_name') {
                         $params[] = trim((string)$data[$field]);
                     } else {
