@@ -101,10 +101,22 @@ $dsn = sprintf(
 try {
     $pdo = new PDO($dsn, $dbConfig['user'], $dbConfig['pass'], build_pdo_options($dbConfig));
 } catch (PDOException $e) {
+    error_log(sprintf(
+        'DB connection failed: %s | host=%s port=%s db=%s user=%s ssl_mode=%s ssl_verify=%s',
+        $e->getMessage(),
+        $dbConfig['host'] ?? '',
+        $dbConfig['port'] ?? '',
+        $dbConfig['name'] ?? '',
+        $dbConfig['user'] ?? '',
+        $dbConfig['ssl_mode'] ?? '',
+        !empty($dbConfig['ssl_verify']) ? 'true' : 'false'
+    ));
+
     http_response_code(500);
-    echo json_encode([
-        'error' => 'Database connection failed',
-        'details' => getenv('APP_ENV') === 'local' ? $e->getMessage() : null,
-    ]);
+    $response = ['error' => 'Database connection failed'];
+    if (getenv('APP_ENV') === 'local') {
+        $response['details'] = $e->getMessage();
+    }
+    echo json_encode($response);
     exit;
 }
