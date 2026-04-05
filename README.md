@@ -37,6 +37,7 @@ DB_NAME=defaultdb
 DB_USER=avnadmin
 DB_PASS=your-password
 DB_SSL_MODE=require
+DB_SSL_VERIFY=false
 DB_CHARSET=utf8mb4
 APP_ENV=production
 ```
@@ -72,6 +73,7 @@ DB_NAME=your-aiven-database
 DB_USER=your-aiven-username
 DB_PASS=your-aiven-password
 DB_SSL_MODE=require
+DB_SSL_VERIFY=false
 DB_CHARSET=utf8mb4
 APP_ENV=production
 ```
@@ -115,4 +117,4 @@ Check:
 ## Notes
 
 - [backend/setup_database.php](/c:/xampp/htdocs/Procurement/backend/setup_database.php) now creates tables inside the configured database instead of trying to create a new database on the hosted server.
-- If your MySQL provider requires a custom CA file, set `DB_SSL_CA` to the absolute path of that CA bundle inside the container.
+- If your MySQL provider requires a custom CA file, set `DB_SSL_CA` to the absolute path of that CA bundle inside the container and set `DB_SSL_VERIFY=true`.
