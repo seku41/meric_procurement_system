@@ -741,6 +741,37 @@
       return data;
     }
 
+    async function getMpesaConfig() {
+      const response = await fetch('../backend/mpesa.php?action=config');
+      const text = await response.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error('Failed to read M-Pesa configuration.');
+      }
+      return data;
+    }
+
+    async function initiateMpesaPayment(payload) {
+      const response = await fetch('../backend/mpesa.php?action=initiate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const text = await response.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error('Failed to parse M-Pesa response.');
+      }
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || data.message || 'M-Pesa payment initiation failed.');
+      }
+      return data;
+    }
+
     async function getInventory() {
       const response = await fetch('../backend/inventory.php');
       const text = await response.text();
@@ -1335,14 +1366,15 @@
               <td>KSH ${parseFloat(o.total_price || 0).toLocaleString()}</td>
               <td>${o.delivery_date || '-'}</td>
               <td>${o.deadline || '-'}</td>
-              <td><span class="status-badge status-${(o.status || 'pending')}">${o.status || 'pending'}</span></td>
-              <td>${o.order_date ? new Date(o.order_date).toLocaleDateString() : '-'}</td>
-              <td>
-                <button class="action-btn btn-approve" onclick="markOrderCompleted(${o.id})">Mark Completed</button>
-                <button class="action-btn btn-edit" onclick="markOrderPaid(${o.id})">Mark Paid</button>
-              </td>
-            </tr>
-          `).join('');
+                <td><span class="status-badge status-${(o.status || 'pending')}">${o.status || 'pending'}</span></td>
+                <td>${o.order_date ? new Date(o.order_date).toLocaleDateString() : '-'}</td>
+                <td>
+                  <button class="action-btn btn-approve" onclick="markOrderCompleted(${o.id})">Mark Completed</button>
+                  <button class="action-btn btn-edit" onclick="markOrderPaid(${o.id})">Mark Paid</button>
+                  <button class="action-btn" style="background:#198754;color:#fff;" onclick="payOrderWithMpesa(${o.id})">Pay M-Pesa</button>
+                </td>
+              </tr>
+            `).join('');
         }
 
         // Populate vendor dropdown for create order form
@@ -1789,6 +1821,48 @@
         showMessage('Editing inventory item.', 'info');
       } catch (err) {
         showMessage('Failed to load item for edit.', 'error');
+      }
+    };
+
+    window.payOrderWithMpesa = async function(id) {
+      try {
+        const config = await getMpesaConfig();
+        if (!config.shortcode_configured || !config.consumer_key_configured || !config.consumer_secret_configured || !config.passkey_configured) {
+          showMessage('M-Pesa sandbox is not fully configured in environment variables yet.', 'error');
+          return;
+        }
+
+        const order = await getOrderById(id);
+        if (!order) {
+          showMessage('Order not found.', 'error');
+          return;
+        }
+
+        if ((order.payment_status || '').toLowerCase() === 'paid') {
+          showMessage('Order is already paid.', 'info');
+          return;
+        }
+
+        const suggestedPhone = order.mpesa_phone || '';
+        const phone = prompt(
+          `Enter the M-Pesa phone number to receive the sandbox STK push for order #${id} (amount KSH ${parseFloat(order.total_price || 0).toLocaleString()}):`,
+          suggestedPhone
+        );
+
+        if (phone === null) {
+          return;
+        }
+
+        const result = await initiateMpesaPayment({
+          order_id: id,
+          phone: phone,
+          amount: order.total_price
+        });
+
+        showMessage(result.message || 'STK push sent. Complete the payment on the phone.', 'success');
+        loadOrders();
+      } catch (err) {
+        showMessage(err.message || 'Failed to start M-Pesa payment.', 'error');
       }
     };
 

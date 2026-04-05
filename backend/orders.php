@@ -17,8 +17,30 @@ function ensureOrderInventoryTracking(PDO $pdo) {
     }
 }
 
+function ensureOrderMpesaColumns(PDO $pdo) {
+    $definitions = [
+        'mpesa_phone' => "ALTER TABLE `orders` ADD COLUMN `mpesa_phone` VARCHAR(20) DEFAULT NULL AFTER `payment_status`",
+        'mpesa_checkout_request_id' => "ALTER TABLE `orders` ADD COLUMN `mpesa_checkout_request_id` VARCHAR(120) DEFAULT NULL AFTER `mpesa_phone`",
+        'mpesa_merchant_request_id' => "ALTER TABLE `orders` ADD COLUMN `mpesa_merchant_request_id` VARCHAR(120) DEFAULT NULL AFTER `mpesa_checkout_request_id`",
+        'mpesa_receipt_number' => "ALTER TABLE `orders` ADD COLUMN `mpesa_receipt_number` VARCHAR(120) DEFAULT NULL AFTER `mpesa_merchant_request_id`",
+        'mpesa_result_code' => "ALTER TABLE `orders` ADD COLUMN `mpesa_result_code` VARCHAR(20) DEFAULT NULL AFTER `mpesa_receipt_number`",
+        'mpesa_result_desc' => "ALTER TABLE `orders` ADD COLUMN `mpesa_result_desc` TEXT DEFAULT NULL AFTER `mpesa_result_code`",
+        'mpesa_status' => "ALTER TABLE `orders` ADD COLUMN `mpesa_status` VARCHAR(30) DEFAULT NULL AFTER `mpesa_result_desc`",
+        'mpesa_requested_amount' => "ALTER TABLE `orders` ADD COLUMN `mpesa_requested_amount` DECIMAL(10,2) DEFAULT NULL AFTER `mpesa_status`",
+        'mpesa_raw_callback' => "ALTER TABLE `orders` ADD COLUMN `mpesa_raw_callback` LONGTEXT DEFAULT NULL AFTER `mpesa_requested_amount`",
+    ];
+
+    $columns = $pdo->query('SHOW COLUMNS FROM `orders`')->fetchAll(PDO::FETCH_COLUMN, 0);
+    foreach ($definitions as $column => $sql) {
+        if (!in_array($column, $columns, true)) {
+            $pdo->exec($sql);
+        }
+    }
+}
+
 try {
 ensureOrderInventoryTracking($pdo);
+ensureOrderMpesaColumns($pdo);
 $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
