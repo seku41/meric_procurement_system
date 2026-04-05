@@ -434,8 +434,9 @@
         </div>
         <div id="orders-empty" style="display:none; padding:20px; text-align:center; color:#666;">No orders yet. Create one using the form below.</div>
         <hr style="margin:25px 0;">
-        <h3>Create New Order</h3>
+        <h3 id="order-form-title">Create New Order</h3>
         <form id="create-order-form" style="max-width:600px;">
+          <input type="hidden" id="order-id" value="">
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
             <div>
               <label>Vendor *</label>
@@ -462,7 +463,10 @@
               <input type="date" id="order-deadline" style="width:100%; padding:10px; border-radius:6px; border:1px solid #ddd;">
             </div>
           </div>
-          <button type="submit" class="nav-btn" style="margin-top:10px;">Create Order</button>
+          <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+            <button type="submit" class="nav-btn" id="order-submit-btn">Create Order</button>
+            <button type="button" class="nav-btn logout" id="order-cancel-btn" style="display:none;">Cancel Edit</button>
+          </div>
         </form>
         <div id="order-result" style="margin-top:15px;"></div>
       </div>
@@ -751,6 +755,32 @@
         throw new Error('Failed to read M-Pesa configuration.');
       }
       return data;
+    }
+
+    function resetOrderForm(message = '') {
+      document.getElementById('order-id').value = '';
+      document.getElementById('order-form-title').textContent = 'Create New Order';
+      document.getElementById('order-submit-btn').textContent = 'Create Order';
+      document.getElementById('order-cancel-btn').style.display = 'none';
+      document.getElementById('create-order-form').reset();
+      if (message) {
+        document.getElementById('order-result').innerHTML = `<span style="color:#17a2b8;">${message}</span>`;
+      }
+    }
+
+    function fillOrderForm(order) {
+      document.getElementById('order-id').value = order.id;
+      document.getElementById('order-form-title').textContent = `Edit Order #${order.id}`;
+      document.getElementById('order-submit-btn').textContent = 'Update Order';
+      document.getElementById('order-cancel-btn').style.display = 'inline-block';
+      document.getElementById('order-vendor').value = order.vendor_id || '';
+      document.getElementById('order-product').value = order.product || '';
+      document.getElementById('order-quantity').value = order.quantity || 1;
+      document.getElementById('order-unit-price').value = order.unit_price || 0;
+      document.getElementById('order-delivery-date').value = order.delivery_date || '';
+      document.getElementById('order-deadline').value = order.deadline || '';
+      document.getElementById('order-result').innerHTML = '<span style="color:#17a2b8;">Editing selected order.</span>';
+      document.getElementById('create-order-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     async function initiateMpesaPayment(payload) {
@@ -1369,6 +1399,7 @@
                 <td><span class="status-badge status-${(o.status || 'pending')}">${o.status || 'pending'}</span></td>
                 <td>${o.order_date ? new Date(o.order_date).toLocaleDateString() : '-'}</td>
                 <td>
+                  <button class="action-btn" style="background:#6f42c1;color:#fff;" onclick="editOrder(${o.id})">Edit</button>
                   <button class="action-btn btn-approve" onclick="markOrderCompleted(${o.id})">Mark Completed</button>
                   <button class="action-btn btn-edit" onclick="markOrderPaid(${o.id})">Mark Paid</button>
                   <button class="action-btn" style="background:#198754;color:#fff;" onclick="payOrderWithMpesa(${o.id})">Pay M-Pesa</button>
@@ -1401,6 +1432,7 @@
     // Create order form handler
     document.getElementById('create-order-form').addEventListener('submit', async function(e) {
       e.preventDefault();
+      const orderId = document.getElementById('order-id').value;
       const vendorSel = document.getElementById('order-vendor');
       const vendorId = vendorSel.value;
       const opt = vendorSel.options[vendorSel.selectedIndex];
@@ -1414,7 +1446,7 @@
       const resultDiv = document.getElementById('order-result');
 
       try {
-        const result = await addOrder({
+        const payload = {
           vendor_id: parseInt(vendorId, 10),
           vendor_id_number: vendorIdNumber,
           product: product,
@@ -1423,16 +1455,36 @@
           total_price: totalPrice,
           delivery_date: deliveryDate,
           deadline: deadline
-        });
+        };
+        const result = orderId
+          ? await updateOrder(orderId, payload)
+          : await addOrder(payload);
         if (result && result.success) {
-          resultDiv.innerHTML = '<span style="color:#28a745;">Order created successfully!</span>';
-          document.getElementById('create-order-form').reset();
+          resultDiv.innerHTML = `<span style="color:#28a745;">Order ${orderId ? 'updated' : 'created'} successfully!</span>`;
+          resetOrderForm();
           loadOrders();
         }
       } catch (err) {
         resultDiv.innerHTML = '<span style="color:#dc3545;">Error: ' + err.message + '</span>';
       }
     });
+
+    document.getElementById('order-cancel-btn').addEventListener('click', function() {
+      resetOrderForm('Edit cancelled. You can create a new order now.');
+    });
+
+    window.editOrder = async function(id) {
+      try {
+        const order = await getOrderById(id);
+        if (!order) {
+          showMessage('Order not found.', 'error');
+          return;
+        }
+        fillOrderForm(order);
+      } catch (err) {
+        showMessage('Failed to load order for editing.', 'error');
+      }
+    };
 
     // Mark order as completed (delivered)
     window.markOrderCompleted = async function(id) {
