@@ -3,5 +3,23 @@ services:
     name: procurement-app
     runtime: docker
     plan: free
-    autoDeploy: true
+    dockerfilePath: ./Dockerfile
+    autoDeployTrigger: commit
     healthCheckPath: /
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASS
+        sync: false
+      - key: DB_SSL_MODE
+        value: require
+      - key: DB_CHARSET
+        value: utf8mb4

@@ -82,14 +82,14 @@
         
         <div class="info">
             <strong>Before running this setup:</strong><br>
-            1. Make sure XAMPP is running (Apache and MySQL)<br>
-            2. Check that MySQL is running on port 3306<br>
-            3. Verify your MySQL credentials in api/db.php
+            1. For local use, make sure XAMPP is running (Apache and MySQL)<br>
+            2. For Render, make sure your Render environment variables match your Aiven MySQL service<br>
+            3. The target database must already exist before this page creates the tables
         </div>
         
         <div class="steps">
             <strong>Setup Steps:</strong><br>
-            1. Click "Setup Database" to create the database and tables<br>
+            1. Click "Setup Database" to create the tables in the configured database<br>
             2. After successful setup, go to "Create Admin User"<br>
             3. Finally, login to the admin panel
         </div>

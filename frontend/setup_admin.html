@@ -203,7 +203,7 @@
                 data = JSON.parse(text);
             } catch (e) {
                 console.error('Server returned non-JSON:', text);
-                throw new Error('Server returned invalid response. Ensure Apache and PHP are running and access via http://localhost/');
+                throw new Error('Server returned invalid response. Confirm the backend is deployed and the database connection is working.');
             }
             if (!response.ok) {
                 throw new Error(data.error || 'Failed to create user');
